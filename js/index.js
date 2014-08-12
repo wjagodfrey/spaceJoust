@@ -373,7 +373,7 @@
       var maxTime, minTime, time;
       minTime = 30000;
       maxTime = 2000;
-      time = 1;
+      time = Math.round(Math.random() * minTime) + maxTime;
       return setTimeout((function(_this) {
         return function() {
           _this.spawnNewItem();
