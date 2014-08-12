@@ -761,8 +761,9 @@
     Player.prototype.addEffect = function(name, add, remove, time) {
       if (!this.effects[name]) {
         add();
+      } else {
+        clearTimeout(this.effects[name].timeout);
       }
-      clearTimeout(this.effects[name].timeout);
       return this.effects[name] = {
         remove: remove,
         timeout: setTimeout((function(_this) {

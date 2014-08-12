@@ -98,7 +98,8 @@ class Player
     # if perk isn't running, add effect again
     if !@effects[name]
       add()
-    clearTimeout @effects[name].timeout
+    else
+      clearTimeout @effects[name].timeout
     @effects[name] = 
       remove: remove
       timeout: setTimeout =>
