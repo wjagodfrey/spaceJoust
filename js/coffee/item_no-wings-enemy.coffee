@@ -1,6 +1,5 @@
 class items.NoWingsEnemy
   constructor: (@container, @key, @spawner) ->
-    console.log @container, @key
 
   type : 'Item'
 
@@ -16,17 +15,18 @@ class items.NoWingsEnemy
 
       player = ent.other
 
-      # cache modified values
-      cache =
-        yForce: player.yForce
-
       player.addEffect(
         'NoWingsEnemy'
         -> # apply effect
-          player.yForce = 0
-          removePlayerVelocity player.playerType, 'up'
+          if !player.cache.noWingsEnemy?
+            player.cache.noWingsEnemy =
+              yForce: player.yForce
+            player.yForce = 0
+            removePlayerVelocity player.playerType, 'up'
         -> # remove effect
-          player.yForce = cache.yForce
+          if player.cache.noWingsEnemy?
+            player.yForce = player.cache.noWingsEnemy.yForce
+            delete player.cache.noWingsEnemy
         4000
       )
 
@@ -40,7 +40,6 @@ class items.NoWingsEnemy
   draw: (ctx) ->
     ctx
     .save()
-    .globalAlpha(0.5)
     .fillStyle('#8aff58')
     .fillRect(Math.round(@x), Math.round(@y), @width, @height)
     .restore()

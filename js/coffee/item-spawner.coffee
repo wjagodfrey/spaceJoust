@@ -31,7 +31,6 @@ class Item_Spawner
         x = Math.round(Math.random() * @width)
         y = Math.round(Math.random() * @height)
         noCol = true
-        console.log x, y
         for entSource in [@destination, players]
           for i, ent of entSource
 
@@ -52,7 +51,6 @@ class Item_Spawner
             abort = true
       generateLocation()
 
-      console.log key, itemType, item
       if !abort
         item.x = x
         item.y = y

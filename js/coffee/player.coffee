@@ -9,12 +9,14 @@ class Player
     @solid= true
     @x= 0
     @y= 0
-    @width=  7
-    @height=  12
-    @xForce=  1.7
-    @yForce=  2
+    @width= 7
+    @height= 12
+    @xForce= 1.7
+    @yForce= 2
 
     @spawn= undefined
+    @item= undefined
+    @cache= {}
 
     @vel= 
       x: 0
@@ -46,7 +48,6 @@ class Player
           if !players[playerType].keys.w?.pressed
             removePlayerVelocity playerType, 'up'
         if ent.type is 'Player'
-          console.log ent
           ent.die()
       left_col: ->
       right_col: ->
@@ -79,14 +80,20 @@ class Player
           removePlayerVelocity playerType, 'left'
     @keys[controlScheme.right] =
         press: ->
-          console.log playerType
           addPlayerVelocity playerType, 'right', {
             x: players[playerType].xForce
           }
         release: ->
           removePlayerVelocity playerType, 'right'
+    @keys[controlScheme.item] =
+        press: ->
+          players[playerType].useItem()
 
   type: 'Player'
+
+  useItem: ->
+    @item?.use()
+    @item = undefined
 
   removeEffect: (name) ->
     if @effects[name]?
@@ -96,10 +103,10 @@ class Player
       delete @effects[name]
   addEffect: (name, add, remove, time) ->
     # if perk isn't running, add effect again
-    if !@effects[name]
-      add()
-    else
-      clearTimeout @effects[name].timeout
+    clearTimeout @effects[name]?.timeout
+    remove()
+    add()
+    
     @effects[name] = 
       remove: remove
       timeout: setTimeout =>

@@ -1,6 +1,5 @@
 class items.AddLife
   constructor: (@container, @key, @spawner) ->
-    console.log @container, @key
 
   type : 'Item'
 
@@ -26,7 +25,6 @@ class items.AddLife
   draw: (ctx) ->
     ctx
     .save()
-    .globalAlpha(0.5)
     .fillStyle('#cb71ff')
     .fillRect(Math.round(@x), Math.round(@y), @width, @height)
     .restore()

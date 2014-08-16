@@ -5,4 +5,5 @@ players.alien = new Player(
     down: 's'
     left: 'a'
     right: 'd'
+    item: 'g'
 )

@@ -22,6 +22,7 @@ task 'build', 'Watch all jade, stylus and coffeescript files and build appropria
     "#{jsPref}item-spawner.coffee"
     "#{jsPref}item_add-life.coffee"
     "#{jsPref}item_no-wings-enemy.coffee"
+    "#{jsPref}item_bomb.coffee"
     "#{jsPref}level_middle.coffee"
     "#{jsPref}player.coffee"
     "#{jsPref}player_human.coffee"

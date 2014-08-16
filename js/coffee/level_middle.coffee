@@ -84,7 +84,7 @@ levels.level_middle =
 
 
     # Item Spawner
-    @spawner = new Item_Spawner(@midground, ['AddLife', 'NoWingsEnemy'], @width, @height, 5)
+    @spawner = new Item_Spawner(@midground, ['AddLife', 'Bomb', 'NoWingsEnemy'], @width, @height, 5)
 
 
 

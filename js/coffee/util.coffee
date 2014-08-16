@@ -37,7 +37,6 @@ hasBoxHit = (_ax, _ay, _awidth, _aheight, _bx, _by, _bwidth, _bheight) ->
 
 loadLevel = (name) =>
   root.level = level = levels["level_#{name}"] or {}
-  console.log level
   level.onBuild?()
 
 addPlayerVelocity = (player, name, vector) ->

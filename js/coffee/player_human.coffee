@@ -5,4 +5,5 @@ players.human = new Player(
     down: 'down'
     left: 'left'
     right: 'right'
+    item: 'slash'
 )
