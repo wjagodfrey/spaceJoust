@@ -50,8 +50,8 @@ levels.level_middle =
 
       # LASERS AND BUTTONS
       # top laser/button combo
-      laser_1_right: new Laser 152, 55, 48, 15, false, '#c1711f'
-      laser_1_left: new Laser 100, 55, 48, 15, false, '#c1711f'
+      laser_1_right: new Laser 152, 55, 48, 15, false, '#21b2b4'
+      laser_1_left: new Laser 100, 55, 48, 15, false, '#21b2b4'
       laser_1_button: new Button 148, 108
       , ->
         level.midground.laser_1_right.on = true
@@ -59,7 +59,7 @@ levels.level_middle =
       , ->
         level.midground.laser_1_right.on = false
         level.midground.laser_1_left.on = false
-      , true, '#c1711f'
+      , true, '#21b2b4'
 
       # top laser/button combo
       laser_2_middle: new Laser 148, 4, 4, 26, false
@@ -97,7 +97,6 @@ levels.level_middle =
     @render.canvas.height = @height
     if players.human.lives is 0 then @winner = 'Alien'
     if players.alien.lives is 0 then @winner = 'human'
-
 
   drawBackground: ->
     @render

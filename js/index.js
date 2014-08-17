@@ -322,15 +322,17 @@
       this.player = players[playerType.toLowerCase()];
       this.solid = false;
       this.width = 20;
-      this.height = 20;
+      this.height = 35;
       if ((_ref = this.player) != null) {
         _ref.spawn = this;
       }
       this.type = 'Spawn';
     }
 
+    PlayerSpawn.prototype.lockoutCount = 30;
+
     PlayerSpawn.prototype.isSolidTo = function(item) {
-      return this.type === 'Spawn' && this.player.playerType !== item.playerType;
+      return this.type === 'Spawn' && (this.player.playerType !== item.playerType || this.closed);
     };
 
     PlayerSpawn.prototype.onBuild = function(level) {
@@ -339,14 +341,36 @@
 
     PlayerSpawn.prototype.reset = function() {
       var _ref, _ref1, _ref2, _ref3;
+      this.closed = false;
+      this.hitCount = 0;
+      this.updateCount = 0;
       if ((_ref = this.player) != null) {
         _ref.x = this.x + this.width / 2 - ((_ref1 = this.player) != null ? _ref1.width : void 0) / 2;
       }
       return (_ref2 = this.player) != null ? _ref2.y = this.y + this.height / 2 - ((_ref3 = this.player) != null ? _ref3.height : void 0) / 2 : void 0;
     };
 
+    PlayerSpawn.prototype.update = function() {
+      if (!this.closed) {
+        this.updateCount++;
+        if (this.updateCount - this.hitCount > this.lockoutCount) {
+          return this.closed = true;
+        }
+      }
+    };
+
+    PlayerSpawn.prototype.onHit = function(col, ent) {
+      if (ent.playerType === this.player.playerType && !this.closed) {
+        if (this.hitCount !== this.updateCount) {
+          this.hitCount = 0;
+          this.updateCount = 0;
+        }
+        return this.hitCount++;
+      }
+    };
+
     PlayerSpawn.prototype.draw = function(ctx) {
-      return ctx.save().globalAlpha(0.5).fillStyle(this.player.color).fillRect(Math.round(this.x), Math.round(this.y), this.width, this.height).fillStyle('white').textAlign('left').textBaseline('middle').wrappedText(this.player.lives.toString(), Math.round(this.x) + 7, Math.round(this.y) + this.height / 2, this.width).restore();
+      return ctx.save().globalAlpha(this.closed ? 0.8 : 0.2).fillStyle(this.player.color).fillRect(Math.round(this.x), Math.round(this.y), this.width, this.height).restore().save().fillStyle('white').textAlign('left').textBaseline('middle').wrappedText(this.player.lives.toString(), Math.round(this.x) + 7, Math.round(this.y) + this.height / 2, this.width).restore();
     };
 
     return PlayerSpawn;
@@ -568,16 +592,35 @@
             return level.midground[key] = {
               type: 'Bomb',
               key: key,
-              x: ent.x + ent.width / 2 - 2.5,
-              y: ent.y + ent.height / 2 - 2.5,
+              x: ent.x + ent.width / 2 - 3,
+              y: ent.y + ent.height / 2 - 3,
               width: 6,
               height: 6,
+              armed: false,
+              hitCount: 0,
+              updateCount: 0,
+              lockoutCount: 20,
               draw: function(ctx) {
-                return ctx.save().fillStyle('#a90007').fillRect(Math.round(this.x), Math.round(this.y), this.width, this.height).fillStyle(ent.color).fillRect(Math.round(this.x + 1), Math.round(this.y + 1), this.width - 2, this.height - 2).restore();
+                return ctx.save().fillStyle('#0b0f16').fillRect(Math.round(this.x), Math.round(this.y), this.width, this.height).fillStyle(this.armed ? '#b70011' : '#7eac04').fillRect(Math.round(this.x + 1), Math.round(this.y + 1), this.width - 2, this.height - 2).restore();
+              },
+              update: function() {
+                if (!this.armed) {
+                  this.updateCount++;
+                  if (this.updateCount - this.hitCount > this.lockoutCount) {
+                    return this.armed = true;
+                  }
+                }
               },
               onHit: function(c, e) {
                 var _ref, _ref1;
-                if (e.type === 'Player' && e.playerType !== ent.playerType) {
+                if (e.playerType === ent.playerType && !this.armed) {
+                  if (this.hitCount !== this.updateCount) {
+                    this.hitCount = 0;
+                    this.updateCount = 0;
+                  }
+                  this.hitCount++;
+                }
+                if (e.type === 'Player' && this.armed) {
                   e.die();
                   if ((_ref = level.midground) != null) {
                     _ref[this.key] = void 0;
@@ -640,15 +683,15 @@
         row2_right: new Boundary(220, 110, 50, 4),
         row3_left: new Boundary(40, 150, 90, 4),
         row3_right: new Boundary(170, 150, 90, 4),
-        laser_1_right: new Laser(152, 55, 48, 15, false, '#c1711f'),
-        laser_1_left: new Laser(100, 55, 48, 15, false, '#c1711f'),
+        laser_1_right: new Laser(152, 55, 48, 15, false, '#21b2b4'),
+        laser_1_left: new Laser(100, 55, 48, 15, false, '#21b2b4'),
         laser_1_button: new Button(148, 108, function() {
           level.midground.laser_1_right.on = true;
           return level.midground.laser_1_left.on = true;
         }, function() {
           level.midground.laser_1_right.on = false;
           return level.midground.laser_1_left.on = false;
-        }, true, '#c1711f'),
+        }, true, '#21b2b4'),
         laser_2_middle: new Laser(148, 4, 4, 26, false),
         laser_2_right_button: new Button(204, 53, function() {
           return vars.laser_2_right_button = level.midground.laser_2_middle.on = true;

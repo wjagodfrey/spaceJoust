@@ -22,20 +22,38 @@ class items.Bomb
             # Bomb entity
             type: 'Bomb'
             key: key
-            x: ent.x + ent.width/2 - 2.5
-            y: ent.y + ent.height/2 - 2.5
+            x: ent.x + ent.width/2 - 3
+            y: ent.y + ent.height/2 - 3
             width: 6
             height: 6
+
+            #arming
+            armed: false
+            hitCount: 0
+            updateCount: 0
+            lockoutCount: 20
             draw: (ctx) ->
               ctx
               .save()
-              .fillStyle('#a90007')
+              .fillStyle('#0b0f16')
               .fillRect(Math.round(@x), Math.round(@y), @width, @height)
-              .fillStyle(ent.color)
+              .fillStyle(if @armed then '#b70011' else '#7eac04')
               .fillRect(Math.round(@x+1), Math.round(@y+1), @width-2, @height-2)
               .restore()
+            update: ->
+              if !@armed # then check to see if it should be armed
+                @updateCount++
+                if @updateCount - @hitCount > @lockoutCount
+                  @armed = true
+
             onHit: (c, e) ->
-              if e.type is 'Player' and e.playerType isnt ent.playerType
+              if e.playerType is ent.playerType and !@armed
+                if @hitCount isnt @updateCount
+                  @hitCount = 0
+                  @updateCount = 0
+                @hitCount++
+
+              if e.type is 'Player' and @armed
 
                 e.die()
 
