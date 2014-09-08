@@ -110,8 +110,8 @@ gameCq = cq().framework(
     @
     .save()
     .translate(
-      gameCanvas.width / 2 - (level.width * resizeFactor) / 2
-      gameCanvas.height / 2 - (level.height * resizeFactor) / 2
+      (gameCanvas.width / 2 + level.offsetX) - (level.width * resizeFactor) / 2
+      (gameCanvas.height / 2 + level.offsetY) - (level.height * resizeFactor) / 2
     )
     .drawImage(level.render.canvas,0,0, level.width * resizeFactor, level.height * resizeFactor)
     .restore()

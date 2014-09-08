@@ -1,30 +1,15 @@
-class items.AddLife
+class item.AddLife extends Item
   constructor: (@container, @key, @spawner) ->
 
-  type : 'Item'
-
-  x : 0
-  y : 0
-
-  solid : false
-  width : 5
-  height : 5
+  color: '#cb71ff'
 
   onHit: (col, ent) ->
     if ent.type is 'Player'
       # add player effect
       ent.lives++
 
+      if ent.lives > ent.maxLives
+        ent.lives = ent.maxLives
+
       # remove item
-      @spawner?.itemCount--
-      @container?[@key] = undefined
-      delete @container?[@key]
-
-  onBuild: (level) ->
-
-  draw: (ctx) ->
-    ctx
-    .save()
-    .fillStyle('#cb71ff')
-    .fillRect(Math.round(@x), Math.round(@y), @width, @height)
-    .restore()
+      @destroy()

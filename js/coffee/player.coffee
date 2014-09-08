@@ -35,7 +35,8 @@ class Player
     # On Build Event
     @onBuild = (level) ->
       @other = players[if playerType is 'alien' then 'human' else 'alien']
-      @lives = 5
+      @maxLives = 5
+      @lives = @maxLives
 
     # Player Events
     @events =
@@ -93,7 +94,6 @@ class Player
 
   useItem: ->
     @item?.use()
-    @item = undefined
 
   removeEffect: (name) ->
     if @effects[name]?
@@ -131,7 +131,7 @@ class Player
         if mod.x then @vel.x += mod.x
         if mod.y then @vel.y += mod.y
 
-    playerHitsAndVelocity @
+    applyPhysics @
 
   die: ->
     @lives--
@@ -151,4 +151,11 @@ class Player
       .save()
       .fillStyle(@color)
       .fillRect(Math.round(@x),Math.round(@y), @width,@height)
-      .restore()
+      if @item?
+        if @item.draw?
+          @item.draw ctx
+        else
+          ctx
+          .fillStyle(@item.color)
+          .fillRect(Math.round(@x+@width/2-2),Math.round(@y+@height/2-2), 4,4)
+      ctx.restore()

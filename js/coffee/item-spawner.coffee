@@ -5,12 +5,13 @@ class Item_Spawner
   itemCount: 0
   itemIdCount: 0
   setSpawnTimer: ->
-    minTime = 30000
-    maxTime = 2000
-    time = Math.round(Math.random() * minTime) + maxTime #min 2000 max 5000
+    minTime = 100
+    maxTime = 1000
+    devTime = 0
+    time = devTime or Math.round(Math.random() * minTime) + maxTime
     setTimeout =>
       @spawnNewItem()
-      @setSpawnTimer() #DEV
+      @setSpawnTimer()
     , time
 
   spawnNewItem: =>
@@ -20,7 +21,15 @@ class Item_Spawner
       key = "Level_Item_#{@itemIdCount}"
       itemTypeIndex = Math.round(Math.random() * (@itemTypes.length-1))
       itemType = @itemTypes[itemTypeIndex]
-      item = new items[itemType](@destination, key, @)
+
+      # handle arguments
+      args = []
+      if itemType instanceof Array
+        i = itemType[0]
+        args = itemType.slice(1)
+        itemType = i
+
+      newItem = new item[itemType](@destination, key, @, args...)
 
       maxTries = 10
       tries = 0
@@ -40,7 +49,7 @@ class Item_Spawner
             oh = ent.height
 
             if col = hasBoxHit(
-              x,y, item.width,item.height
+              x,y, newItem.width,newItem.height
               ent.x, ent.y, ent.width, ent.height
             )
               noCol = false
@@ -52,6 +61,6 @@ class Item_Spawner
       generateLocation()
 
       if !abort
-        item.x = x
-        item.y = y
-        @destination[key] = item
+        newItem.x = x
+        newItem.y = y
+        @destination[key] = newItem

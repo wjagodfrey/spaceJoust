@@ -1,4 +1,4 @@
-class Laser
+class entity.Laser
   constructor: (@x, @y, @width, @height, @on = false, @color = '#972d32') ->
     @solid = false
 
@@ -12,7 +12,7 @@ class Laser
       ent.die?()
 
   draw: (ctx) ->
-    alpha = if @on then 0.5 else 0.1
+    alpha = if @on then 1 else 0.1
     ctx
     .save()
     .globalAlpha(alpha)

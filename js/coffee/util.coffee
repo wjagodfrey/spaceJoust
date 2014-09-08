@@ -49,94 +49,111 @@ addPlayerVelocity = (player, name, vector) ->
 removePlayerVelocity = (player, name) ->
   delete players[player].vel.mod[name]
 
-playerHitsAndVelocity = (player) ->
+applyPhysics = (ent1) ->
 
   xCorrection = 1
   yCorrection = 1
 
-  for entSource in [level?.midground, [player.other]]
-    for i, ent of entSource
 
-      ox = ent.x
-      ow = ent.width
-      oy = ent.x
-      oh = ent.height
+  for entSource in [level?.midground, players]
+    for i, ent2 of entSource
 
-      if col = hasBoxHit(
-        player.x + player.vel.x,player.y + player.vel.y, player.width,player.height
-        ent.x, ent.y, ent.width, ent.height
-      )
+      if ent1 isnt ent2
 
-        solid =
-        ent.solid or # Solid object
-        (ent.isSolidTo?(player)) # Is other teams' spawner
+        ox = ent2.x
+        ow = ent2.width
+        oy = ent2.x
+        oh = ent2.height
 
-        xDepth = 0
-        yDepth = 0
+        if col = hasBoxHit(
+          ent1.x + ent1.vel.x,ent1.y + ent1.vel.y, ent1.width,ent1.height
+          ent2.x, ent2.y, ent2.width, ent2.height
+        )
 
-        # get shallow axis
+          ent1Solid =
+          ent1.solid or
+          (ent1.isSolidTo?(ent2))
 
-        if col.left and col.right
-          xDepth = player.width
-        else if !col.left and !col.right
-          xDepth = ent.width
-        else if col.left and !col.right
-          xDepth = player.width - ((player.x + player.vel.x + player.width) - (ent.x + ent.width))
-        else if !col.left and col.right
-          xDepth = player.width - (ent.x - (player.x + player.vel.x))
+          ent2Solid =
+          ent2.solid or
+          (ent2.isSolidTo?(ent1))
 
-        if col.top and col.bottom
-          yDepth = player.height
-        else if !col.top and !col.bottom
-          yDepth = ent.height
-        else if col.top and !col.bottom
-          yDepth = player.height - ((player.y + player.vel.y + player.height) - (ent.y + ent.height))
-        else if !col.top and col.bottom
-          yDepth = player.height - (ent.y - (player.y + player.vel.y))
+          xDepth = 0
+          yDepth = 0
+
+          # get shallow axis
+
+          if col.left and col.right
+            xDepth = ent1.width
+          else if !col.left and !col.right
+            xDepth = ent2.width
+          else if col.left and !col.right
+            xDepth = ent1.width - ((ent1.x + ent1.vel.x + ent1.width) - (ent2.x + ent2.width))
+          else if !col.left and col.right
+            xDepth = ent1.width - (ent2.x - (ent1.x + ent1.vel.x))
+
+          if col.top and col.bottom
+            yDepth = ent1.height
+          else if !col.top and !col.bottom
+            yDepth = ent2.height
+          else if col.top and !col.bottom
+            yDepth = ent1.height - ((ent1.y + ent1.vel.y + ent1.height) - (ent2.y + ent2.height))
+          else if !col.top and col.bottom
+            yDepth = ent1.height - (ent2.y - (ent1.y + ent1.vel.y))
 
 
-        collisions =
-          top    : false
-          bottom : false
-          left   : false
-          right  : false
+          ent1Collisions =
+            top    : false
+            bottom : false
+            left   : false
+            right  : false
+          ent2Collisions =
+            top    : false
+            bottom : false
+            left   : false
+            right  : false
 
-        if xDepth and yDepth
-          # collision on the left moving left
-          if (xDepth < yDepth or !player.vel.y) and player.vel.x < 0 and (col.left or !col.right)
-            # ax - bxx
-            correction = ((player.x) - (ent.x + ent.width)) / Math.abs(player.vel.x)
-            if correction < xCorrection and solid
-              xCorrection = correction
-            collisions.right = true
-            player.events?.left_col?(ent)
-          # collision on the right moving right
-          else if (xDepth < yDepth or !player.vel.y) and player.vel.x > 0 and (col.right or !col.left)
-            # bx - axx
-            correction = (ent.x - (player.x + player.width)) / Math.abs(player.vel.x)
-            if correction < xCorrection and solid
-              xCorrection = correction
-            collisions.left = true
-            player.events?.right_col?(ent)
+          if xDepth and yDepth
+            # collision on the left moving left
+            if (xDepth < yDepth or !ent1.vel.y) and ent1.vel.x < 0 and (col.left or !col.right)
+              # ax - bxx
+              correction = ((ent1.x) - (ent2.x + ent2.width)) / Math.abs(ent1.vel.x)
+              if correction < xCorrection and ent2Solid
+                xCorrection = correction
+              ent1Collisions.left = true
+              ent2Collisions.right = true
+              ent1.events?.left_col?(ent2)
+            # collision on the right moving right
+            else if (xDepth < yDepth or !ent1.vel.y) and ent1.vel.x > 0 and (col.right or !col.left)
+              # bx - axx
+              correction = (ent2.x - (ent1.x + ent1.width)) / Math.abs(ent1.vel.x)
+              if correction < xCorrection and ent2Solid
+                xCorrection = correction
+              ent1Collisions.right = true
+              ent2Collisions.left = true
+              ent1.events?.right_col?(ent2)
 
-          # collision on the top moving up
-          if (yDepth < xDepth or !player.vel.x) and player.vel.y < 0 and (col.top or !col.bottom)
-            # ay - byy
-            correction = ((player.y) - (ent.y + ent.height)) / Math.abs(player.vel.y)
-            if correction < yCorrection and solid
-              yCorrection = correction
-            collisions.bottom = true
-            player.events?.top_col?(ent)
-          # collision on the bottom moving down
-          else if (yDepth < xDepth or !player.vel.x) and player.vel.y > 0 and (col.bottom or !col.top)
-            # by - ayy
-            correction = (ent.y - (player.y + player.height)) / Math.abs(player.vel.y)
-            if correction < yCorrection and solid
-              yCorrection = correction
-            collisions.top = true
-            player.events?.bottom_col?(ent)
+            # collision on the top moving up
+            if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y < 0 and (col.top or !col.bottom)
+              # ay - byy
+              correction = ((ent1.y) - (ent2.y + ent2.height)) / Math.abs(ent1.vel.y)
+              if correction < yCorrection and ent2Solid
+                yCorrection = correction
+              ent1Collisions.top = true
+              ent2Collisions.bottom = true
+              ent1.events?.top_col?(ent2)
+            # collision on the bottom moving down
+            else if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y > 0 and (col.bottom or !col.top)
+              # by - ayy
+              correction = (ent2.y - (ent1.y + ent1.height)) / Math.abs(ent1.vel.y)
+              if correction < yCorrection and ent2Solid
+                yCorrection = correction
+              ent1Collisions.bottom = true
+              ent2Collisions.top = true
+              ent1.events?.bottom_col?(ent2)
 
-        ent.onHit?(collisions, player)
+          ent2.onHit?(ent2Collisions, ent1, ent1Solid)
+          ent1.onHit?(ent1Collisions, ent2, ent2Solid)
 
-  player.x += (player.vel.x * xCorrection)
-  player.y += (player.vel.y * yCorrection)
+  ent1.x += (ent1.vel.x * xCorrection)
+  ent1.y += (ent1.vel.y * yCorrection)

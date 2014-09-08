@@ -8,12 +8,6 @@
         "url": "https://github.com/wilfredjamesgodfrey/expressions.git"
     },
     "keywords": [
-        "expressions",
-        "face",
-        "web",
-        "HTML",
-        "HTML5",
-        "javascript"
     ],
     "dependencies": {
         "colors": "0.6.x",

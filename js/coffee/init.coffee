@@ -4,10 +4,11 @@ loaded       = false
 frame        = 0
 touchDown    = false
 
-@levels  = levels = {}
-@players = players = {}
-@items   = items = {}
-@HUD     = HUD = []
+@levels   = levels = {}
+@players  = players = {}
+@item    = item = {}
+@entity = entity = {}
+@HUD      = HUD = []
 
 @level = level = undefined
 

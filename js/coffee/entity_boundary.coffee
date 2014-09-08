@@ -1,4 +1,4 @@
-class Boundary
+class entity.Boundary
   constructor: (@x, @y, @width, @height) ->
     @solid = true
 

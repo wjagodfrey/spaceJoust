@@ -1,4 +1,4 @@
-class PlayerSpawn
+class entity.PlayerSpawn
   constructor: (@x, @y, playerType) ->
 
     @player = players[playerType.toLowerCase()]
@@ -47,9 +47,13 @@ class PlayerSpawn
     .fillStyle(@player.color)
     .fillRect(Math.round(@x), Math.round(@y), @width, @height)
     .restore()
+
+    lifeMeterHeight = @height*(@player.lives/@player.maxLives)
+    ctx
     .save()
+
+    .globalAlpha(0.2)
     .fillStyle('white')
-    .textAlign('left')
-    .textBaseline('middle')
-    .wrappedText(@player.lives.toString(), Math.round(@x)+7, Math.round(@y)+@height/2, @width)
+    .fillRect(Math.round(@x), Math.round(@y+(@height-lifeMeterHeight)), @width, lifeMeterHeight)
+
     .restore()

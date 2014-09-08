@@ -1,14 +1,7 @@
-class items.NoWingsEnemy
+class item.NoWingsEnemy extends Item
   constructor: (@container, @key, @spawner) ->
 
-  type : 'Item'
-
-  x : 0
-  y : 0
-
-  solid : false
-  width : 5
-  height : 5
+  color : '#8aff58'
 
   onHit: (col, ent) ->
     if ent.type is 'Player'
@@ -34,12 +27,3 @@ class items.NoWingsEnemy
       @spawner?.itemCount--
       @container?[@key] = undefined
       delete @container?[@key]
-
-  onBuild: (level) ->
-
-  draw: (ctx) ->
-    ctx
-    .save()
-    .fillStyle('#8aff58')
-    .fillRect(Math.round(@x), Math.round(@y), @width, @height)
-    .restore()

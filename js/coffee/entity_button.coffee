@@ -1,4 +1,4 @@
-class Button
+class entity.Button
   constructor: (@x, @y, @onPress, @onRelease, @once, @color = '#972d32') ->
     @solid = true
     @width = 4
