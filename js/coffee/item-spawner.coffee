@@ -7,7 +7,7 @@ class Item_Spawner
   setSpawnTimer: ->
     minTime = 100
     maxTime = 1000
-    devTime = 0
+    devTime = 1
     time = devTime or Math.round(Math.random() * minTime) + maxTime
     setTimeout =>
       @spawnNewItem()

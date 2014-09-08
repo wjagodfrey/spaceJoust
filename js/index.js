@@ -434,7 +434,6 @@
     }
 
     Bomb.prototype.boom = function() {
-      clearTimeout(this.timeout);
       level.shake.start();
       return this.explode.exploding = true;
     };
@@ -466,12 +465,31 @@
       } else {
         if (this.explode.exploding) {
           if (this.explode.size < this.explode.sizeLimit) {
-            return this.explode.size += this.explode.sizeSpeed;
+            this.explode.size += this.explode.sizeSpeed;
+            applyPhysics({
+              solid: true,
+              type: 'Explosion',
+              x: this.x - this.explode.size / 2,
+              y: this.y - this.explode.size / 2,
+              width: this.explode.size,
+              height: this.explode.size,
+              vel: {
+                x: 0,
+                y: 0
+              },
+              onHit: function(c, e, solid) {
+                if (e.type === 'Player') {
+                  return e.die();
+                }
+              }
+            });
           } else {
             if ((_ref = level.midground) != null) {
               _ref[this.key] = void 0;
             }
-            return (_ref1 = level.midground) != null ? delete _ref1[this.key] : void 0;
+            if ((_ref1 = level.midground) != null) {
+              delete _ref1[this.key];
+            }
           }
         } else if (this.xBounce || this.yBounce) {
           if (this.yBounce) {
@@ -480,24 +498,20 @@
           if (this.xBounce) {
             this.vel.x = this.force * this.direction.x;
           }
-          return applyPhysics(this);
         }
+        return applyPhysics(this);
       }
     };
 
     Bomb.prototype.onHit = function(c, e, solid) {
+      var _ref;
       if (e.type === 'Player' && e.playerType === this.ent.playerType && !this.armed) {
         if (this.hitCount !== this.updateCount) {
           this.hitCount = 0;
           this.updateCount = 0;
         }
         return this.hitCount++;
-      } else if (e.type === 'Player' && this.armed) {
-        if (typeof e.die === "function") {
-          e.die();
-        }
-        return this.boom();
-      } else if (e.type === 'Laser' && this.armed && solid) {
+      } else if (((_ref = e.type) === 'Player' || _ref === 'Laser' || _ref === 'Explosion') && this.armed && solid) {
         return this.boom();
       } else if ((this.xBounce || this.yBounce) && solid) {
         if (this.yBounce) {
@@ -655,7 +669,7 @@
       var devTime, maxTime, minTime, time;
       minTime = 100;
       maxTime = 1000;
-      devTime = 0;
+      devTime = 1;
       time = devTime || Math.round(Math.random() * minTime) + maxTime;
       return setTimeout((function(_this) {
         return function() {

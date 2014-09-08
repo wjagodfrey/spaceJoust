@@ -34,7 +34,7 @@ class entity.Bomb
     #   , 5000
 
   boom: ->
-    clearTimeout @timeout
+    # clearTimeout @timeout
     level.shake.start()
     @explode.exploding = yes
 
@@ -67,14 +67,13 @@ class entity.Bomb
       .fillRect(Math.round(@x+1), Math.round(@y+1), @width-2, @height-2)
       .restore()
 
-
-
-    else
+    else # exploding
       ctx
       .save()
       .fillStyle(@explode.color)
       .fillRect(Math.round(@x-@explode.size/2), Math.round(@y-@explode.size/2), @explode.size, @explode.size)
       .restore()
+
   update: ->
     if !@armed # check to see if it should be armed
       @updateCount++
@@ -84,6 +83,23 @@ class entity.Bomb
       if @explode.exploding #if exploding
         if @explode.size < @explode.sizeLimit
           @explode.size += @explode.sizeSpeed
+
+          # run onHit events
+
+          applyPhysics
+            solid: true
+            type: 'Explosion'
+            x: @x-@explode.size/2
+            y: @y-@explode.size/2
+            width: @explode.size
+            height: @explode.size
+            vel:
+              x: 0
+              y: 0
+            onHit: (c, e, solid) ->
+              if e.type is 'Player' # this is how players die in explosions
+                e.die()
+
         else
           # remove bomb
           level.midground?[@key] = undefined
@@ -95,7 +111,7 @@ class entity.Bomb
         if @xBounce
           @vel.x = @force * @direction.x
 
-        applyPhysics @
+      applyPhysics @
 
 
   onHit: (c, e, solid) ->
@@ -107,12 +123,11 @@ class entity.Bomb
       @hitCount++
 
     # if armed and is a player, detonate
-    else if e.type is 'Player' and @armed
-      e.die?()
-      @boom()
+    # else if e.type is  and @armed
+    #   @boom()
 
     # if armed and is a valid object, harmlessly detonate
-    else if e.type is 'Laser' and @armed and solid
+    else if e.type in ['Player','Laser','Explosion'] and @armed and solid
       @boom()
 
     # otherwise bounce off things
