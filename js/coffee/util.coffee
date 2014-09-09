@@ -1,5 +1,43 @@
 'use strict'
 
+# event sys
+events = {}
+onEvent = (eventName, eventHandler) ->
+  events[eventName] ?= []
+  events[eventName].push eventHandler
+  ->
+    events[eventName].splice events[eventName].indexOf(eventHandler), 1
+fireEvent = (eventName, args...) ->
+  if events[eventName]?.length
+    for eventHandler in events[eventName]
+      eventHandler(args...)
+
+
+# frame dependant timing functions (won't keep running if tab isn't visible)
+frameCount = 0
+frameTimeouts = {}
+setFrameTimeout = (callback, time) ->
+  frame = frameCount + Math.ceil(time * 0.06)
+  if !frame or frame is frameCount
+    setTimeout callback
+  else
+    frameTimeouts[frame] ?= []
+    frameTimeouts[frame].push callback
+    removed = false
+    return =>
+      if !removed
+        if frameTimeouts[frame]
+          frameTimeouts[frame].splice(frameTimeouts[frame].indexOf(callback), 1)
+        removed = true
+updateFrameTimeouts = ->
+  frame = frameCount++
+  if frameTimeouts[frame]
+    for callback in frameTimeouts[frame]
+      callback()
+    frameTimeouts[frame] = undefined
+    delete frameTimeouts[frame]
+
+
 hasMouseHit = (x, y, width, height) ->
   col = 
     x : (x + width / 2  >= mouse.x and x - width / 2  <= mouse.x)

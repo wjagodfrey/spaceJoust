@@ -5,10 +5,12 @@ class entity.Button
     @height = 2
 
     @type = 'Button'
+    @pressed = false
 
   onHit: (col, ent) ->
     @hadHit = true
-    if col.top and !@yCache?
+    if col.top and !@pressed
+      @pressed = true
       @yCache = @y
       @height = 1
       @y = @yCache+1
@@ -18,7 +20,8 @@ class entity.Button
       @onPress?(col, ent)
 
   update: ->
-    if !@hadHit and @yCache?
+    if !@hadHit and @pressed
+      @pressed = false
       @height = 2
       @y = @yCache
       delete @yCache

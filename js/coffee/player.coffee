@@ -97,19 +97,19 @@ class Player
 
   removeEffect: (name) ->
     if @effects[name]?
-      clearTimeout @effects[name].timeout
+      @effects[name].timeout()
       @effects[name].remove()
       @effects[name] = undefined
       delete @effects[name]
   addEffect: (name, add, remove, time) ->
     # if perk isn't running, add effect again
-    clearTimeout @effects[name]?.timeout
+    @effects[name]?.timeout()
     remove()
     add()
     
     @effects[name] = 
       remove: remove
-      timeout: setTimeout =>
+      timeout: setFrameTimeout =>
         # run perk removal function
         remove()
         # remove perk

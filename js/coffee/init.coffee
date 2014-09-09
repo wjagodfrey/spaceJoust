@@ -1,33 +1,4 @@
-root = @
-
-loaded       = false
-frame        = 0
-touchDown    = false
-
-@levels   = levels = {}
-@players  = players = {}
-@item    = item = {}
-@entity = entity = {}
-@HUD      = HUD = []
-
-@level = level = undefined
-
-resizeFactor = 2
-gravity = 0.1
-
-# event sys
-events = {}
-onEvent = (eventName, eventHandler) ->
-  events[eventName] ?= []
-  events[eventName].push eventHandler
-  ->
-    events[eventName].splice events[eventName].indexOf(eventHandler), 1
-fireEvent = (eventName, args...) ->
-  if events[eventName]?.length
-    for eventHandler in events[eventName]
-      eventHandler(args...)
-
-setTimeout ->
+setFrameTimeout ->
   fireEvent 'assetsLoaded'
 
 # loaded = false

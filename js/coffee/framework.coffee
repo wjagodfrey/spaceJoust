@@ -20,11 +20,9 @@ gameCq = cq().framework(
   onmouseup: mouseUpHandler = (x, y, btn) ->
     mouse.down = false
     mouse.up = true
-    fireEvent 'onmouseup', x, y, btn
 
   onmousedown: mouseDownHandler = (x, y, btn) ->
     mouse.down = true
-    fireEvent 'onmousedown', x, y, btn
 
   onmousemove: mouseMoveHandler = (x, y) ->
     mouse.x = x
@@ -44,13 +42,13 @@ gameCq = cq().framework(
     touchDown = false
     if !touchMove
       mouseDownHandler x, y
-      clearTimeout touchTimeout
-      touchTimeout = setTimeout ->
+      touchTimeout()
+      touchTimeout = setFrameTimeout ->
         mouseUpHandler x, y
       , 100
     touchMove = false
 
-  onkeydown: (key) ->
+  onkeydown: (key, e) ->
     for name, player of players
       if player.keys[key]? and !player.keys[key].pressed
         player.keys[key].pressed = true
@@ -66,55 +64,60 @@ gameCq = cq().framework(
   onrender: (delta, time) ->
     @clear('#202424')
 
-    # make resizeds show pixel edges
-    @context.mozImageSmoothingEnabled    =
-    @context.webkitImageSmoothingEnabled =
-    @context.msImageSmoothingEnabled     =
-    @context.imageSmoothingEnabled       = false
-    level.render.context.mozImageSmoothingEnabled    =
-    level.render.context.webkitImageSmoothingEnabled =
-    level.render.context.msImageSmoothingEnabled     =
-    level.render.context.imageSmoothingEnabled       = false
+    if level?
 
-    resizeFactor = Math.min(gameCanvas.width / level.width, gameCanvas.height / (level.height + 20))
+      # make resizeds show pixel edges
+      @context.mozImageSmoothingEnabled    =
+      @context.webkitImageSmoothingEnabled =
+      @context.msImageSmoothingEnabled     =
+      @context.imageSmoothingEnabled       = false
+      level.render.context.mozImageSmoothingEnabled    =
+      level.render.context.webkitImageSmoothingEnabled =
+      level.render.context.msImageSmoothingEnabled     =
+      level.render.context.imageSmoothingEnabled       = false
 
-    # draw entities
-    level?.update?()
+      resizeFactor = Math.min(gameCanvas.width / level.width, gameCanvas.height / (level.height + 20))
 
-    if !level.winner
+      # draw entities
 
-      level?.drawBackground?()
+      updateFrameTimeouts()
 
-      for name, player of players
-        player.update?()
-        player.draw?(level.render, delta, time)
-      
-      level?.drawMidground?()
-      level?.drawForeground?()
+      level.update?()
 
-      for i, entity of HUD
-        entity.update?()
-        entity.draw?(level.render, delta, time, parseInt i)
+      if !level.winner
 
-    else # HACKY WINNER SCREEN
+        level.drawBackground?()
 
-      level.render
+        for name, player of players
+          player.update?()
+          player.draw?(level.render, delta, time)
+        
+        level.drawMidground?()
+        level.drawForeground?()
+
+        for i, entity of HUD
+          entity.update?()
+          entity.draw?(level.render, delta, time, parseInt i)
+
+      else # HACKY WINNER SCREEN
+
+        level.render
+        .save()
+        .textAlign('center')
+        .textBaseline('middle')
+        .fillStyle(players[level.winner.toLowerCase()].color)
+        .wrappedText("The #{level.winner} won!", level.width/2, level.height/2, level.width)
+        .restore()
+
+      # draw level render to game canvas
+      @
       .save()
-      .textAlign('center')
-      .textBaseline('middle')
-      .fillStyle(players[level.winner.toLowerCase()].color)
-      .wrappedText("The #{level.winner} won!", level.width/2, level.height/2, level.width)
+      .translate(
+        (gameCanvas.width / 2 + level.offsetX) - (level.width * resizeFactor) / 2
+        (gameCanvas.height / 2 + level.offsetY) - (level.height * resizeFactor) / 2
+      )
+      .drawImage(level.render.canvas,0,0, level.width * resizeFactor, level.height * resizeFactor)
       .restore()
-
-    # draw level render to game canvas
-    @
-    .save()
-    .translate(
-      (gameCanvas.width / 2 + level.offsetX) - (level.width * resizeFactor) / 2
-      (gameCanvas.height / 2 + level.offsetY) - (level.height * resizeFactor) / 2
-    )
-    .drawImage(level.render.canvas,0,0, level.width * resizeFactor, level.height * resizeFactor)
-    .restore()
 
 
     mouse.up = false

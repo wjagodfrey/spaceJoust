@@ -85,7 +85,7 @@ levels.level_middle =
           level.midground.laser_2_middle.on = false
       , true
 
-      suddenDeath: new entity.SuddenDeath @, 10
+      suddenDeath: new entity.SuddenDeath @, 27
 
 
     # Item Spawner
@@ -113,9 +113,9 @@ levels.level_middle =
       y: 3
     timeout: {}
     start: (duration = 300) ->
-      clearTimeout @timeout
+      @timeout?()
       @shaking = true
-      @timeout = setTimeout =>
+      @timeout = setFrameTimeout =>
         @shaking = false
       , duration
     update: ->
