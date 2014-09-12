@@ -1,7 +1,6 @@
 root = @
 
 loaded       = false
-frame        = 0
 touchDown    = false
 
 @levels   = levels = {}

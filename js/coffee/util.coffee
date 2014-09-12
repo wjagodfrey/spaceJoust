@@ -14,28 +14,29 @@ fireEvent = (eventName, args...) ->
 
 
 # frame dependant timing functions (won't keep running if tab isn't visible)
-frameCount = 0
-frameTimeouts = {}
-setFrameTimeout = (callback, time) ->
-  frame = frameCount + Math.ceil(time * 0.06)
-  if !frame or frame is frameCount
+@frameCount = 0
+@frameTimeouts = frameTimeouts = {}
+setFrameTimeout = (callback, time = 0) ->
+  targetFrame = root.frameCount + Math.ceil(time * 0.06)
+  if targetFrame <= (root.frameCount + 1)
     setTimeout callback
   else
-    frameTimeouts[frame] ?= []
-    frameTimeouts[frame].push callback
+    frameTimeouts[targetFrame] ?= []
+    frameTimeouts[targetFrame].push callback
     removed = false
     return =>
       if !removed
-        if frameTimeouts[frame]
-          frameTimeouts[frame].splice(frameTimeouts[frame].indexOf(callback), 1)
+        if frameTimeouts[targetFrame]
+          frameTimeouts[targetFrame].splice(frameTimeouts[targetFrame].indexOf(callback), 1)
         removed = true
 updateFrameTimeouts = ->
-  frame = frameCount++
-  if frameTimeouts[frame]
-    for callback in frameTimeouts[frame]
+  targetFrame = root.frameCount++
+  # console.log frame
+  if frameTimeouts[targetFrame]
+    for callback in frameTimeouts[targetFrame]
       callback()
-    frameTimeouts[frame] = undefined
-    delete frameTimeouts[frame]
+    frameTimeouts[targetFrame] = undefined
+    delete frameTimeouts[targetFrame]
 
 
 hasMouseHit = (x, y, width, height) ->
