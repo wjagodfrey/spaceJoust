@@ -590,7 +590,6 @@
       var randomBloop;
       this.level = level;
       this.height = height != null ? height : 0;
-      this.solid = true;
       this.type = 'SuddenDeath';
       this.x = 0;
       this.y = this.level.height - this.height;
@@ -628,6 +627,10 @@
     SuddenDeath.prototype.speed = 0.01;
 
     SuddenDeath.prototype.bloops = [];
+
+    SuddenDeath.prototype.isSolidTo = function(ent) {
+      return ent.type !== 'Bomb' && !ent.armed;
+    };
 
     SuddenDeath.prototype.startGrowth = function() {
       return this.grow = true;
