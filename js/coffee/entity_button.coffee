@@ -8,16 +8,17 @@ class entity.Button
     @pressed = false
 
   onHit: (col, ent) ->
-    @hadHit = true
-    if col.top and !@pressed
-      @pressed = true
-      @yCache = @y
-      @height = 1
-      @y = @yCache+1
-      ent.y++
-      @onPress?(col, ent)
-    else if @yCache? and !@once
-      @onPress?(col, ent)
+    if ent.type in ['Player', 'Bomb']
+      @hadHit = true
+      if col.top and !@pressed
+        @pressed = true
+        @yCache = @y
+        @height = 1
+        @y = @yCache+1
+        ent.y++
+        @onPress?(col, ent)
+      else if @yCache? and !@once
+        @onPress?(col, ent)
 
   update: ->
     if !@hadHit and @pressed

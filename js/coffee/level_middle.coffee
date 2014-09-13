@@ -85,7 +85,7 @@ levels.level_middle =
           level.midground.laser_2_middle.on = false
       , true
 
-      suddenDeath: new entity.SuddenDeath @, 27
+      suddenDeath: new entity.SuddenDeath @, 23
 
 
     # Item Spawner

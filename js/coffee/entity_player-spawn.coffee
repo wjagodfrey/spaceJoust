@@ -49,6 +49,7 @@ class entity.PlayerSpawn
     .restore()
 
     lifeMeterHeight = @height*(@player.lives/@player.maxLives)
+
     ctx
     .save()
 

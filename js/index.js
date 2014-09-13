@@ -314,16 +314,19 @@
     }
 
     Button.prototype.onHit = function(col, ent) {
-      this.hadHit = true;
-      if (col.top && !this.pressed) {
-        this.pressed = true;
-        this.yCache = this.y;
-        this.height = 1;
-        this.y = this.yCache + 1;
-        ent.y++;
-        return typeof this.onPress === "function" ? this.onPress(col, ent) : void 0;
-      } else if ((this.yCache != null) && !this.once) {
-        return typeof this.onPress === "function" ? this.onPress(col, ent) : void 0;
+      var _ref;
+      if ((_ref = ent.type) === 'Player' || _ref === 'Bomb') {
+        this.hadHit = true;
+        if (col.top && !this.pressed) {
+          this.pressed = true;
+          this.yCache = this.y;
+          this.height = 1;
+          this.y = this.yCache + 1;
+          ent.y++;
+          return typeof this.onPress === "function" ? this.onPress(col, ent) : void 0;
+        } else if ((this.yCache != null) && !this.once) {
+          return typeof this.onPress === "function" ? this.onPress(col, ent) : void 0;
+        }
       }
     };
 
@@ -1059,7 +1062,7 @@
             return level.midground.laser_2_middle.on = false;
           }
         }, true),
-        suddenDeath: new entity.SuddenDeath(this, 27)
+        suddenDeath: new entity.SuddenDeath(this, 23)
       };
       this.spawner = new Item_Spawner(this.midground, ['Bomb', ['Bomb', true, false], ['Bomb', false, true], ['Bomb', true, true], 'NoWingsEnemy', 'AddLife'], this.width, this.height, 7);
       _ref = [players, this.midground, this.foreground];
