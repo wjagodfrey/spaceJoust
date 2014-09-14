@@ -334,12 +334,12 @@
       var _ref;
       if ((_ref = ent.type) === 'Player' || _ref === 'Bomb') {
         this.hadHit = true;
-        if (col.top && !this.pressed) {
+        if ((col.top || col.right || col.left) && !this.pressed) {
           this.pressed = true;
           this.yCache = this.y;
           this.height = 1;
           this.y = this.yCache + 1;
-          ent.y++;
+          ent.y = this.y - ent.height;
           return typeof this.onPress === "function" ? this.onPress(col, ent) : void 0;
         } else if ((this.yCache != null) && !this.once) {
           return typeof this.onPress === "function" ? this.onPress(col, ent) : void 0;
