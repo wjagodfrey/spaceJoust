@@ -5,9 +5,6 @@ class Player
     controlScheme
   ) ->
 
-
-
-    @solid= true
     @x= 0
     @y= 0
     @width= 7
@@ -93,6 +90,8 @@ class Player
           players[playerType].useItem()
 
   type: 'Player'
+
+  isSolidTo: -> true
 
   useItem: ->
     @item?.use()

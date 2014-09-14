@@ -3,7 +3,6 @@ class entity.PlayerSpawn
 
     @player = players[playerType.toLowerCase()]
 
-    @solid = false
     @width = 20
     @height = 35
 

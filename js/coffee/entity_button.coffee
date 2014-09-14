@@ -1,11 +1,12 @@
 class entity.Button
   constructor: (@x, @y, @onPress, @onRelease, @once, @color = '#972d32') ->
-    @solid = true
     @width = 4
     @height = 2
 
     @type = 'Button'
     @pressed = false
+
+  isSolidTo: -> true
 
   onHit: (col, ent) ->
     if ent.type in ['Player', 'Bomb']

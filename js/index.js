@@ -176,8 +176,8 @@
           oy = ent2.x;
           oh = ent2.height;
           if (col = hasBoxHit(ent1.x + ent1.vel.x, ent1.y + ent1.vel.y, ent1.width, ent1.height, ent2.x, ent2.y, ent2.width, ent2.height)) {
-            ent1Solid = ent1.solid || (typeof ent1.isSolidTo === "function" ? ent1.isSolidTo(ent2) : void 0);
-            ent2Solid = ent2.solid || (typeof ent2.isSolidTo === "function" ? ent2.isSolidTo(ent1) : void 0);
+            ent1Solid = typeof ent1.isSolidTo === "function" ? ent1.isSolidTo(ent2) : void 0;
+            ent2Solid = typeof ent2.isSolidTo === "function" ? ent2.isSolidTo(ent1) : void 0;
             xDepth = 0;
             yDepth = 0;
             if (col.left && col.right) {
@@ -286,9 +286,12 @@
       this.y = y;
       this.width = width;
       this.height = height;
-      this.solid = true;
       this.type = 'Boundary';
     }
+
+    Boundary.prototype.isSolidTo = function() {
+      return true;
+    };
 
     Boundary.prototype.draw = function(ctx) {
       return ctx.fillStyle('#1b1b1b').fillRect(Math.round(this.x), Math.round(this.y), this.width, this.height);
@@ -306,12 +309,15 @@
       this.onRelease = onRelease;
       this.once = once;
       this.color = color != null ? color : '#972d32';
-      this.solid = true;
       this.width = 4;
       this.height = 2;
       this.type = 'Button';
       this.pressed = false;
     }
+
+    Button.prototype.isSolidTo = function() {
+      return true;
+    };
 
     Button.prototype.onHit = function(col, ent) {
       var _ref;
@@ -359,7 +365,6 @@
       this.height = height;
       this.on = on != null ? on : false;
       this.color = color != null ? color : '#972d32';
-      this.solid = false;
       this.type = 'Laser';
     }
 
@@ -389,7 +394,6 @@
       this.x = x;
       this.y = y;
       this.player = players[playerType.toLowerCase()];
-      this.solid = false;
       this.width = 20;
       this.height = 35;
       if ((_ref = this.player) != null) {
@@ -527,7 +531,9 @@
           if (this.explode.size < this.explode.sizeLimit) {
             this.explode.size += this.explode.sizeSpeed;
             applyPhysics({
-              solid: true,
+              isSolidTo: function() {
+                return true;
+              },
               type: 'Explosion',
               x: this.x - this.explode.size / 2,
               y: this.y - this.explode.size / 2,
@@ -745,8 +751,6 @@
     Item.prototype.x = 0;
 
     Item.prototype.y = 0;
-
-    Item.prototype.solid = false;
 
     Item.prototype.width = 5;
 
@@ -1176,7 +1180,6 @@
   Player = (function() {
     function Player(playerType, color, controlScheme) {
       this.color = color;
-      this.solid = true;
       this.x = 0;
       this.y = 0;
       this.width = 7;
@@ -1270,6 +1273,10 @@
     }
 
     Player.prototype.type = 'Player';
+
+    Player.prototype.isSolidTo = function() {
+      return true;
+    };
 
     Player.prototype.useItem = function() {
       var _ref;

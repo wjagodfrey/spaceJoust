@@ -109,13 +109,9 @@ applyPhysics = (ent1) ->
           ent2.x, ent2.y, ent2.width, ent2.height
         )
 
-          ent1Solid =
-          ent1.solid or
-          (ent1.isSolidTo?(ent2))
+          ent1Solid = ent1.isSolidTo?(ent2)
 
-          ent2Solid =
-          ent2.solid or
-          (ent2.isSolidTo?(ent1))
+          ent2Solid = ent2.isSolidTo?(ent1)
 
           xDepth = 0
           yDepth = 0

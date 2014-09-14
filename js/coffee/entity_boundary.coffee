@@ -1,8 +1,9 @@
 class entity.Boundary
   constructor: (@x, @y, @width, @height) ->
-    @solid = true
 
     @type = 'Boundary'
+
+  isSolidTo: -> true
 
   draw: (ctx) ->
     ctx

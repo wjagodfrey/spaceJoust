@@ -6,7 +6,6 @@ class Item
   x : 0
   y : 0
 
-  solid : false
   width : 5
   height : 5
 

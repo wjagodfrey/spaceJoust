@@ -1,6 +1,5 @@
 class entity.Laser
   constructor: (@x, @y, @width, @height, @on = false, @color = '#972d32') ->
-    @solid = false
 
     @type = 'Laser'
 

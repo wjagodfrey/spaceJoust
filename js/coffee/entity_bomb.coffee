@@ -92,7 +92,7 @@ class entity.Bomb
           # run onHit events
 
           applyPhysics
-            solid: true
+            isSolidTo: -> true
             type: 'Explosion'
             x: @x-@explode.size/2
             y: @y-@explode.size/2
