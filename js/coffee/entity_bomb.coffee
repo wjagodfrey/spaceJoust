@@ -31,16 +31,13 @@ class entity.Bomb
     @updateCount  = 0
     @lockoutCount = if @yBounce or @xBounce then 20 else 5
 
-    # if @yBounce and @xBounce
-    #   @timeout = setFrameTimeout =>
-    #     @boom()
-    #   , 5000
+  noCorrectionWith: (ent) ->
+    ent.type in ['SuddenDeath', 'Laser']
 
   isSolidTo: (ent) ->
     @armed
 
   boom: ->
-    # @timeout()
     level.shake.start()
     @explode.exploding = yes
 
@@ -126,10 +123,6 @@ class entity.Bomb
         @hitCount = 0
         @updateCount = 0
       @hitCount++
-
-    # if armed and is a player, detonate
-    # else if e.type is  and @armed
-    #   @boom()
 
     # if armed and is a valid object, harmlessly detonate
     else if e.type in ['Player','Laser','Explosion','Bomb'] and @armed and solid

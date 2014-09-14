@@ -110,32 +110,7 @@ applyPhysics = (ent1) ->
         )
 
           ent1Solid = ent1.isSolidTo?(ent2)
-
           ent2Solid = ent2.isSolidTo?(ent1)
-
-          xDepth = 0
-          yDepth = 0
-
-          # get shallow axis
-
-          if col.left and col.right
-            xDepth = ent1.width
-          else if !col.left and !col.right
-            xDepth = ent2.width
-          else if col.left and !col.right
-            xDepth = ent1.width - ((ent1.x + ent1.vel.x + ent1.width) - (ent2.x + ent2.width))
-          else if !col.left and col.right
-            xDepth = ent1.width - (ent2.x - (ent1.x + ent1.vel.x))
-
-          if col.top and col.bottom
-            yDepth = ent1.height
-          else if !col.top and !col.bottom
-            yDepth = ent2.height
-          else if col.top and !col.bottom
-            yDepth = ent1.height - ((ent1.y + ent1.vel.y + ent1.height) - (ent2.y + ent2.height))
-          else if !col.top and col.bottom
-            yDepth = ent1.height - (ent2.y - (ent1.y + ent1.vel.y))
-
 
           ent1Collisions =
             top    : false
@@ -148,44 +123,77 @@ applyPhysics = (ent1) ->
             left   : false
             right  : false
 
-          if xDepth and yDepth
-            # collision on the left moving left
-            if (xDepth < yDepth or !ent1.vel.y) and ent1.vel.x < 0 and (col.left or !col.right)
-              # ax - bxx
-              correction = ((ent1.x) - (ent2.x + ent2.width)) / Math.abs(ent1.vel.x)
-              if correction < xCorrection and ent2Solid
-                xCorrection = correction
-              ent1Collisions.left = true
-              ent2Collisions.right = true
-              ent1.events?.left_col?(ent2)
-            # collision on the right moving right
-            else if (xDepth < yDepth or !ent1.vel.y) and ent1.vel.x > 0 and (col.right or !col.left)
-              # bx - axx
-              correction = (ent2.x - (ent1.x + ent1.width)) / Math.abs(ent1.vel.x)
-              if correction < xCorrection and ent2Solid
-                xCorrection = correction
-              ent1Collisions.right = true
-              ent2Collisions.left = true
-              ent1.events?.right_col?(ent2)
+          if ent1Solid and ent2Solid
 
-            # collision on the top moving up
-            if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y < 0 and (col.top or !col.bottom)
-              # ay - byy
-              correction = ((ent1.y) - (ent2.y + ent2.height)) / Math.abs(ent1.vel.y)
-              if correction < yCorrection and ent2Solid
-                yCorrection = correction
-              ent1Collisions.top = true
-              ent2Collisions.bottom = true
-              ent1.events?.top_col?(ent2)
-            # collision on the bottom moving down
-            else if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y > 0 and (col.bottom or !col.top)
-              # by - ayy
-              correction = (ent2.y - (ent1.y + ent1.height)) / Math.abs(ent1.vel.y)
-              if correction < yCorrection and ent2Solid
-                yCorrection = correction
-              ent1Collisions.bottom = true
-              ent2Collisions.top = true
-              ent1.events?.bottom_col?(ent2)
+            xDepth = 0
+            yDepth = 0
+
+            # get shallow axis
+
+            if col.left and col.right
+              xDepth = ent1.width
+            else if !col.left and !col.right
+              xDepth = ent2.width
+            else if col.left and !col.right
+              xDepth = ent1.width - ((ent1.x + ent1.vel.x + ent1.width) - (ent2.x + ent2.width))
+            else if !col.left and col.right
+              xDepth = ent1.width - (ent2.x - (ent1.x + ent1.vel.x))
+
+            if col.top and col.bottom
+              yDepth = ent1.height
+            else if !col.top and !col.bottom
+              yDepth = ent2.height
+            else if col.top and !col.bottom
+              yDepth = ent1.height - ((ent1.y + ent1.vel.y + ent1.height) - (ent2.y + ent2.height))
+            else if !col.top and col.bottom
+              yDepth = ent1.height - (ent2.y - (ent1.y + ent1.vel.y))
+
+
+
+            runCorrection = !ent1.noCorrectionWith?(ent2) and !ent2.noCorrectionWith?(ent1)
+
+            if xDepth and yDepth
+              # collision on the left moving left
+              if (xDepth < yDepth or !ent1.vel.y) and ent1.vel.x < 0 and (col.left or !col.right)
+                if runCorrection
+                  # ax - bxx
+                  correction = ((ent1.x) - (ent2.x + ent2.width)) / Math.abs(ent1.vel.x)
+                  if correction < xCorrection
+                    xCorrection = correction
+                ent1Collisions.left = true
+                ent2Collisions.right = true
+                ent1.events?.left_col?(ent2)
+              # collision on the right moving right
+              else if (xDepth < yDepth or !ent1.vel.y) and ent1.vel.x > 0 and (col.right or !col.left)
+                if runCorrection
+                  # bx - axx
+                  correction = (ent2.x - (ent1.x + ent1.width)) / Math.abs(ent1.vel.x)
+                  if correction < xCorrection
+                    xCorrection = correction
+                ent1Collisions.right = true
+                ent2Collisions.left = true
+                ent1.events?.right_col?(ent2)
+
+              # collision on the top moving up
+              if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y < 0 and (col.top or !col.bottom)
+                if runCorrection
+                  # ay - byy
+                  correction = ((ent1.y) - (ent2.y + ent2.height)) / Math.abs(ent1.vel.y)
+                  if correction < yCorrection
+                    yCorrection = correction
+                ent1Collisions.top = true
+                ent2Collisions.bottom = true
+                ent1.events?.top_col?(ent2)
+              # collision on the bottom moving down
+              else if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y > 0 and (col.bottom or !col.top)
+                if runCorrection
+                  # by - ayy
+                  correction = (ent2.y - (ent1.y + ent1.height)) / Math.abs(ent1.vel.y)
+                  if correction < yCorrection
+                    yCorrection = correction
+                ent1Collisions.bottom = true
+                ent2Collisions.top = true
+                ent1.events?.bottom_col?(ent2)
 
           ent2.onHit?(ent2Collisions, ent1, ent1Solid)
           ent1.onHit?(ent1Collisions, ent2, ent2Solid)

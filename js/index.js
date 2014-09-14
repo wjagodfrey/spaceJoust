@@ -162,7 +162,7 @@
   };
 
   applyPhysics = function(ent1) {
-    var col, correction, ent1Collisions, ent1Solid, ent2, ent2Collisions, ent2Solid, entSource, i, oh, ow, ox, oy, xCorrection, xDepth, yCorrection, yDepth, _i, _len, _ref, _ref1, _ref2, _ref3, _ref4;
+    var col, correction, ent1Collisions, ent1Solid, ent2, ent2Collisions, ent2Solid, entSource, i, oh, ow, ox, oy, runCorrection, xCorrection, xDepth, yCorrection, yDepth, _i, _len, _ref, _ref1, _ref2, _ref3, _ref4;
     xCorrection = 1;
     yCorrection = 1;
     _ref = [level != null ? level.midground : void 0, players];
@@ -178,26 +178,6 @@
           if (col = hasBoxHit(ent1.x + ent1.vel.x, ent1.y + ent1.vel.y, ent1.width, ent1.height, ent2.x, ent2.y, ent2.width, ent2.height)) {
             ent1Solid = typeof ent1.isSolidTo === "function" ? ent1.isSolidTo(ent2) : void 0;
             ent2Solid = typeof ent2.isSolidTo === "function" ? ent2.isSolidTo(ent1) : void 0;
-            xDepth = 0;
-            yDepth = 0;
-            if (col.left && col.right) {
-              xDepth = ent1.width;
-            } else if (!col.left && !col.right) {
-              xDepth = ent2.width;
-            } else if (col.left && !col.right) {
-              xDepth = ent1.width - ((ent1.x + ent1.vel.x + ent1.width) - (ent2.x + ent2.width));
-            } else if (!col.left && col.right) {
-              xDepth = ent1.width - (ent2.x - (ent1.x + ent1.vel.x));
-            }
-            if (col.top && col.bottom) {
-              yDepth = ent1.height;
-            } else if (!col.top && !col.bottom) {
-              yDepth = ent2.height;
-            } else if (col.top && !col.bottom) {
-              yDepth = ent1.height - ((ent1.y + ent1.vel.y + ent1.height) - (ent2.y + ent2.height));
-            } else if (!col.top && col.bottom) {
-              yDepth = ent1.height - (ent2.y - (ent1.y + ent1.vel.y));
-            }
             ent1Collisions = {
               top: false,
               bottom: false,
@@ -210,54 +190,85 @@
               left: false,
               right: false
             };
-            if (xDepth && yDepth) {
-              if ((xDepth < yDepth || !ent1.vel.y) && ent1.vel.x < 0 && (col.left || !col.right)) {
-                correction = (ent1.x - (ent2.x + ent2.width)) / Math.abs(ent1.vel.x);
-                if (correction < xCorrection && ent2Solid) {
-                  xCorrection = correction;
-                }
-                ent1Collisions.left = true;
-                ent2Collisions.right = true;
-                if ((_ref1 = ent1.events) != null) {
-                  if (typeof _ref1.left_col === "function") {
-                    _ref1.left_col(ent2);
-                  }
-                }
-              } else if ((xDepth < yDepth || !ent1.vel.y) && ent1.vel.x > 0 && (col.right || !col.left)) {
-                correction = (ent2.x - (ent1.x + ent1.width)) / Math.abs(ent1.vel.x);
-                if (correction < xCorrection && ent2Solid) {
-                  xCorrection = correction;
-                }
-                ent1Collisions.right = true;
-                ent2Collisions.left = true;
-                if ((_ref2 = ent1.events) != null) {
-                  if (typeof _ref2.right_col === "function") {
-                    _ref2.right_col(ent2);
-                  }
-                }
+            if (ent1Solid && ent2Solid) {
+              xDepth = 0;
+              yDepth = 0;
+              if (col.left && col.right) {
+                xDepth = ent1.width;
+              } else if (!col.left && !col.right) {
+                xDepth = ent2.width;
+              } else if (col.left && !col.right) {
+                xDepth = ent1.width - ((ent1.x + ent1.vel.x + ent1.width) - (ent2.x + ent2.width));
+              } else if (!col.left && col.right) {
+                xDepth = ent1.width - (ent2.x - (ent1.x + ent1.vel.x));
               }
-              if ((yDepth < xDepth || !ent1.vel.x) && ent1.vel.y < 0 && (col.top || !col.bottom)) {
-                correction = (ent1.y - (ent2.y + ent2.height)) / Math.abs(ent1.vel.y);
-                if (correction < yCorrection && ent2Solid) {
-                  yCorrection = correction;
-                }
-                ent1Collisions.top = true;
-                ent2Collisions.bottom = true;
-                if ((_ref3 = ent1.events) != null) {
-                  if (typeof _ref3.top_col === "function") {
-                    _ref3.top_col(ent2);
+              if (col.top && col.bottom) {
+                yDepth = ent1.height;
+              } else if (!col.top && !col.bottom) {
+                yDepth = ent2.height;
+              } else if (col.top && !col.bottom) {
+                yDepth = ent1.height - ((ent1.y + ent1.vel.y + ent1.height) - (ent2.y + ent2.height));
+              } else if (!col.top && col.bottom) {
+                yDepth = ent1.height - (ent2.y - (ent1.y + ent1.vel.y));
+              }
+              runCorrection = !(typeof ent1.noCorrectionWith === "function" ? ent1.noCorrectionWith(ent2) : void 0) && !(typeof ent2.noCorrectionWith === "function" ? ent2.noCorrectionWith(ent1) : void 0);
+              if (xDepth && yDepth) {
+                if ((xDepth < yDepth || !ent1.vel.y) && ent1.vel.x < 0 && (col.left || !col.right)) {
+                  if (runCorrection) {
+                    correction = (ent1.x - (ent2.x + ent2.width)) / Math.abs(ent1.vel.x);
+                    if (correction < xCorrection) {
+                      xCorrection = correction;
+                    }
+                  }
+                  ent1Collisions.left = true;
+                  ent2Collisions.right = true;
+                  if ((_ref1 = ent1.events) != null) {
+                    if (typeof _ref1.left_col === "function") {
+                      _ref1.left_col(ent2);
+                    }
+                  }
+                } else if ((xDepth < yDepth || !ent1.vel.y) && ent1.vel.x > 0 && (col.right || !col.left)) {
+                  if (runCorrection) {
+                    correction = (ent2.x - (ent1.x + ent1.width)) / Math.abs(ent1.vel.x);
+                    if (correction < xCorrection) {
+                      xCorrection = correction;
+                    }
+                  }
+                  ent1Collisions.right = true;
+                  ent2Collisions.left = true;
+                  if ((_ref2 = ent1.events) != null) {
+                    if (typeof _ref2.right_col === "function") {
+                      _ref2.right_col(ent2);
+                    }
                   }
                 }
-              } else if ((yDepth < xDepth || !ent1.vel.x) && ent1.vel.y > 0 && (col.bottom || !col.top)) {
-                correction = (ent2.y - (ent1.y + ent1.height)) / Math.abs(ent1.vel.y);
-                if (correction < yCorrection && ent2Solid) {
-                  yCorrection = correction;
-                }
-                ent1Collisions.bottom = true;
-                ent2Collisions.top = true;
-                if ((_ref4 = ent1.events) != null) {
-                  if (typeof _ref4.bottom_col === "function") {
-                    _ref4.bottom_col(ent2);
+                if ((yDepth < xDepth || !ent1.vel.x) && ent1.vel.y < 0 && (col.top || !col.bottom)) {
+                  if (runCorrection) {
+                    correction = (ent1.y - (ent2.y + ent2.height)) / Math.abs(ent1.vel.y);
+                    if (correction < yCorrection) {
+                      yCorrection = correction;
+                    }
+                  }
+                  ent1Collisions.top = true;
+                  ent2Collisions.bottom = true;
+                  if ((_ref3 = ent1.events) != null) {
+                    if (typeof _ref3.top_col === "function") {
+                      _ref3.top_col(ent2);
+                    }
+                  }
+                } else if ((yDepth < xDepth || !ent1.vel.x) && ent1.vel.y > 0 && (col.bottom || !col.top)) {
+                  if (runCorrection) {
+                    correction = (ent2.y - (ent1.y + ent1.height)) / Math.abs(ent1.vel.y);
+                    if (correction < yCorrection) {
+                      yCorrection = correction;
+                    }
+                  }
+                  ent1Collisions.bottom = true;
+                  ent2Collisions.top = true;
+                  if ((_ref4 = ent1.events) != null) {
+                    if (typeof _ref4.bottom_col === "function") {
+                      _ref4.bottom_col(ent2);
+                    }
                   }
                 }
               }
@@ -495,6 +506,11 @@
       this.lockoutCount = this.yBounce || this.xBounce ? 20 : 5;
     }
 
+    Bomb.prototype.noCorrectionWith = function(ent) {
+      var _ref;
+      return (_ref = ent.type) === 'SuddenDeath' || _ref === 'Laser';
+    };
+
     Bomb.prototype.isSolidTo = function(ent) {
       return this.armed;
     };
@@ -645,7 +661,7 @@
     SuddenDeath.prototype.bloops = [];
 
     SuddenDeath.prototype.isSolidTo = function(ent) {
-      return ent.type !== 'Bomb' && !ent.armed;
+      return true;
     };
 
     SuddenDeath.prototype.startGrowth = function() {

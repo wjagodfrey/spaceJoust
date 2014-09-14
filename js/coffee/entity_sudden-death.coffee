@@ -35,9 +35,7 @@ class entity.SuddenDeath
 
   bloops: []
 
-  isSolidTo: (ent) ->
-    # keep laterally migrating bombs' explosions located appropriately
-    ent.type isnt 'Bomb' and not ent.armed
+  isSolidTo: (ent) -> true
 
 
   startGrowth: ->
