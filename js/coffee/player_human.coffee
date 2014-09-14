@@ -1,6 +1,6 @@
 players.human = new Player(
   'human'
-  '#a6a6a6'
+  '#db9b63'
     up: 'up'
     down: 'down'
     left: 'left'

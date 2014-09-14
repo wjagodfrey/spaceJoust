@@ -1,3 +1,6 @@
+bombBehaviourIndicatorColor = '#939393'
+bombBackgroundColor = '#222222'
+
 class entity.Bomb
   constructor: (@ent, @key, @xBounce, @yBounce) ->
     # Bomb entity
@@ -46,27 +49,26 @@ class entity.Bomb
     if !@explode.exploding
       ctx
       .save()
-      .fillStyle('#0b0f16')
+      .fillStyle(bombBackgroundColor)
       .fillRect(Math.round(@x), Math.round(@y), @width, @height)
       .restore()
 
-      behaviourIndicatorColor = '#425c95'
       if @xBounce
         ctx
         .save()
-        .fillStyle(behaviourIndicatorColor)
+        .fillStyle(if @armed then @ent.color else bombBehaviourIndicatorColor)
         .fillRect(Math.round(@x), Math.round(@y+2), @width, @height-4)
         .restore()
       if @yBounce
         ctx
         .save()
-        .fillStyle(behaviourIndicatorColor)
+        .fillStyle(if @armed then @ent.color else bombBehaviourIndicatorColor)
         .fillRect(Math.round(@x+2), Math.round(@y), @width-4, @height)
         .restore()
 
       ctx
       .save()
-      .fillStyle(if @armed then '#b70011' else '#7eac04')
+      .fillStyle(if @armed then @ent.color else bombBehaviourIndicatorColor)
       .fillRect(Math.round(@x+1), Math.round(@y+1), @width-2, @height-2)
       .restore()
 

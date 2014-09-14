@@ -48,13 +48,22 @@ class entity.PlayerSpawn
     .fillRect(Math.round(@x), Math.round(@y), @width, @height)
     .restore()
 
-    lifeMeterHeight = @height*(@player.lives/@player.maxLives)
+    barHeight = @height / @player.maxLives - 2
+    lifeCount = 0
+    while lifeCount++ < @player.lives
+      ctx
+      .save()
 
-    ctx
-    .save()
+      .globalAlpha(0.2)
+      .fillStyle('white')
+      .fillRect(
+        Math.round(@x)
+        Math.round(
+          (@y + @height) + 1 -
+          ((barHeight + 2) * lifeCount)
+        )
+        @width
+        barHeight
+      )
 
-    .globalAlpha(0.2)
-    .fillStyle('white')
-    .fillRect(Math.round(@x), Math.round(@y+(@height-lifeMeterHeight)), @width, lifeMeterHeight)
-
-    .restore()
+      .restore()

@@ -1,6 +1,6 @@
 players.alien = new Player(
   'alien'
-  '#58993a'
+  '#9be83c'
     up: 'w'
     down: 's'
     left: 'a'

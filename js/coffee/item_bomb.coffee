@@ -3,7 +3,7 @@ bombId = 0
 class item.Bomb extends Item
   constructor: (@container, @key, @spawner, @xBounce, @yBounce) ->
 
-  color: '#0b0f16'
+  color: bombBackgroundColor
 
   onHit: (col, ent) ->
     if ent.type is 'Player' and !ent.item? #if player doesn't have an item
@@ -37,17 +37,16 @@ class item.Bomb extends Item
           .fillStyle(@color)
           .fillRect(Math.round(ent.x+(ent.width-width)/2), Math.round(ent.y+(ent.height-height)/2), width, height)
           .restore()
-          behaviourIndicatorColor = '#425c95'
           if @xBounce
             ctx
             .save()
-            .fillStyle(behaviourIndicatorColor)
+            .fillStyle(bombBehaviourIndicatorColor)
             .fillRect(Math.round(ent.x+(ent.width-width)/2), Math.round(ent.y+(ent.height-height)/2+2), width, height-4)
             .restore()
           if @yBounce
             ctx
             .save()
-            .fillStyle(behaviourIndicatorColor)
+            .fillStyle(bombBehaviourIndicatorColor)
             .fillRect(Math.round(ent.x+(ent.width-width)/2+2), Math.round(ent.y+(ent.height-height)/2), width-4, height)
             .restore()
 
@@ -58,16 +57,15 @@ class item.Bomb extends Item
 
   draw: (ctx) ->
     super ctx
-    behaviourIndicatorColor = '#425c95'
     if @xBounce
       ctx
       .save()
-      .fillStyle(behaviourIndicatorColor)
+      .fillStyle(bombBehaviourIndicatorColor)
       .fillRect(Math.round(@x), Math.round(@y+2), @width, @height-4)
       .restore()
     if @yBounce
       ctx
       .save()
-      .fillStyle(behaviourIndicatorColor)
+      .fillStyle(bombBehaviourIndicatorColor)
       .fillRect(Math.round(@x+2), Math.round(@y), @width-4, @height)
       .restore()

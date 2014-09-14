@@ -6,6 +6,7 @@ class Player
   ) ->
 
 
+
     @solid= true
     @x= 0
     @y= 0
@@ -37,6 +38,7 @@ class Player
       @other = players[if playerType is 'alien' then 'human' else 'alien']
       @maxLives = 5
       @lives = @maxLives
+      @score = 0
 
     # Player Events
     @events =
@@ -134,23 +136,37 @@ class Player
     applyPhysics @
 
   die: ->
-    @lives--
-    @vel = 
-      x: 0
-      y: 0
-      mod:
-        gravity:
-          x: 0
-          y: 0
-    @spawn.reset()
+    if @spawn?.closed
+      @lives--
+      @vel = 
+        x: 0
+        y: 0
+        mod:
+          gravity:
+            x: 0
+            y: 0
+      @spawn.reset()
 
 
   draw: (ctx, delta, time) ->
     if level?
+
+
+      if not @spawn.closed
+        ctx
+        .save()
+        .globalAlpha(0.5)
+        .strokeStyle(@color)
+        .lineWidth(2)
+        .strokeRect(Math.round(@x),Math.round(@y), @width,@height)
+        .restore()
+
+
       ctx
       .save()
       .fillStyle(@color)
       .fillRect(Math.round(@x),Math.round(@y), @width,@height)
+
       if @item?
         if @item.draw?
           @item.draw ctx
