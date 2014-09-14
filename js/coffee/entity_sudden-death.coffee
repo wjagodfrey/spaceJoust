@@ -94,7 +94,8 @@ class entity.SuddenDeath
         speed     : ((height / 12) * 0.8) * (Math.round(Math.random() + 1.5))
 
       if ent.type is 'Player'
-        ent.die?()
+        ent.die =>
+          modifyPlayerScore ent.playerType, -10
       if ent.type is 'Bomb'
         ent.boom?()
       if ent.type is 'Item'

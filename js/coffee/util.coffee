@@ -78,6 +78,10 @@ loadLevel = (name) =>
   root.level = level = levels["level_#{name}"] or {}
   level.onBuild?()
 
+modifyPlayerScore = (player, score) ->
+  level?.addFloatingScore players[player].x, players[player].y, score
+  players[player].score += score
+
 addPlayerVelocity = (player, name, vector) ->
   players[player].vel.mod[name] = {}
   if vector.x

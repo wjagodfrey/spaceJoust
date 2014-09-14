@@ -48,7 +48,8 @@ class Player
           if !players[playerType].keys.w?.pressed
             removePlayerVelocity playerType, 'up'
         if ent.type is 'Player'
-          ent.die()
+          ent.die =>
+            modifyPlayerScore playerType, 50
       left_col: ->
       right_col: ->
 
@@ -134,8 +135,9 @@ class Player
 
     applyPhysics @
 
-  die: ->
+  die: (before, after) ->
     if @spawn?.closed
+      before?()
       @lives--
       @vel = 
         x: 0
@@ -145,6 +147,7 @@ class Player
             x: 0
             y: 0
       @spawn.reset()
+      after?()
 
 
   draw: (ctx, delta, time) ->

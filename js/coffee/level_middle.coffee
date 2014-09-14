@@ -22,6 +22,11 @@ levels.level_middle =
 
     vars = {}
 
+    # Foreground
+    @foreground =
+      score: new entity.Score
+
+
     # Midground
     @midground =
 
@@ -133,6 +138,41 @@ levels.level_middle =
       else
         level.offsetX = 0
         level.offsetY = 0
+
+  floatingScores: []
+
+  addFloatingScore: (x, y, amount) ->
+    @floatingScores.push
+      x: x
+      y: y
+      amount: amount
+      alpha: 1
+      container: @floatingScores
+      update: ->
+        @y -= 0.8
+        @alpha -= 0.02
+
+        if @alpha <= 0
+          @container.splice(
+            @container.indexOf(@)
+            1
+          )
+
+      draw: (ctx) ->
+
+        ctx
+        .save()
+
+        .globalAlpha(@alpha)
+
+        .font('Helvetica')
+        .textBaseline('top')
+
+        .textAlign('center')
+        .fillStyle(if @amount <= 0 then '#e00005' else '#79df06')
+        .fillText(@amount, @x, @y)
+
+        .restore()
 
   update: ->
     @render.canvas.width = @width

@@ -7,7 +7,6 @@ touchDown    = false
 @players  = players = {}
 @item    = item = {}
 @entity = entity = {}
-@HUD      = HUD = []
 
 @level = level = undefined
 

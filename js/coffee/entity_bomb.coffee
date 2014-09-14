@@ -88,6 +88,8 @@ class entity.Bomb
 
           # run onHit events
 
+          ent = @ent
+
           applyPhysics
             isSolidTo: -> true
             type: 'Explosion'
@@ -100,7 +102,12 @@ class entity.Bomb
               y: 0
             onHit: (c, e, solid) ->
               if e.type is 'Player' # this is how players die in explosions
-                e.die()
+
+                e.die =>
+                  if e.playerType is ent.playerType
+                    modifyPlayerScore e.playerType, -5
+                  else
+                    modifyPlayerScore ent.playerType, +200000
 
         else
           # remove bomb

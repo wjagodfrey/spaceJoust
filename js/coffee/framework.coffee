@@ -95,19 +95,27 @@ gameCq = cq().framework(
         level.drawMidground?()
         level.drawForeground?()
 
-        for i, entity of HUD
-          entity.update?()
-          entity.draw?(level.render, delta, time, parseInt i)
-
       else # HACKY WINNER SCREEN
 
         level.render
         .save()
+        .font('2em Helvetica')
         .textAlign('center')
         .textBaseline('middle')
         .fillStyle(players[level.winner.toLowerCase()].color)
-        .wrappedText("The #{level.winner} won!", level.width/2, level.height/2, level.width)
+        .wrappedText("The #{level.winner} won!", level.width/2, level.height/2 - 10, level.width)
+
+        .font('1em Helvetica')
+        .fillText('Scores:', level.width/2, level.height/2 + 10)
+
+        .textBaseline('top')
+        .fillStyle(players.alien.color)
+        .fillText("Alien: #{players.alien.score}", level.width/2, level.height/2 + 20)
+        .fillStyle(players.human.color)
+        .fillText("Human: #{players.human.score}", level.width/2, level.height/2 + 35)
+
         .restore()
+
 
       # draw level render to game canvas
       @

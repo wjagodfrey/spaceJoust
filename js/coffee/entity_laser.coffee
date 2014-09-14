@@ -7,8 +7,9 @@ class entity.Laser
     @on
 
   onHit: (col, ent) ->
-    if @on
-      ent.die?()
+    if @on and ent.type is 'Player'
+      ent.die =>
+        modifyPlayerScore ent.playerType, -5
 
   draw: (ctx) ->
     alpha = if @on then 1 else 0.1

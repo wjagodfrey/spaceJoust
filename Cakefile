@@ -16,6 +16,7 @@ task 'build', 'Watch all jade, stylus and coffeescript files and build appropria
     "#{jsPref}root.coffee"
     "#{jsPref}util.coffee"
     "#{jsPref}init.coffee"
+    "#{jsPref}entity_score.coffee"
     "#{jsPref}entity_boundary.coffee"
     "#{jsPref}entity_button.coffee"
     "#{jsPref}entity_laser.coffee"
