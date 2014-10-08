@@ -5,11 +5,12 @@ class item.AddLife extends Item
 
   onHit: (col, ent) ->
     if ent.type is 'Player'
+      console.log '>>', ent
       # add player effect
-      ent.lives++
 
-      if ent.lives > ent.maxLives
-        ent.lives = ent.maxLives
+      if ent.lives isnt ent.maxLives
+        ent.lives++
+        level?.addBlinkUpdate ent.x, ent.y, '+1', false
 
       # remove item
       @destroy()

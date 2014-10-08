@@ -1,7 +1,7 @@
-class entity.SuddenDeath
+class entity.Slime
   constructor: (@level, @height = 0) ->
 
-    @type = 'SuddenDeath'
+    @type = 'Slime'
 
     @x = 0
     @y = @level.height - @height
@@ -52,7 +52,7 @@ class entity.SuddenDeath
     @y = level.height - @height + 1
     applyPhysics @
 
-    if @height >= level.height/2
+    if @height >= level.height/3
       @stopGrowth()
 
     for i, bloop of @bloops
@@ -83,7 +83,8 @@ class entity.SuddenDeath
 
 
   onHit: (col, ent) ->
-    if ent.type in ['Player', 'Bomb', 'Item']
+    if ent.type in ['Bomb', 'Item'] or
+    (ent.type is 'Player' and !ent.invincible)
 
       @bloops.push
         x         : ent.x
@@ -94,8 +95,7 @@ class entity.SuddenDeath
         speed     : ((height / 12) * 0.8) * (Math.round(Math.random() + 1.5))
 
       if ent.type is 'Player'
-        ent.die =>
-          modifyPlayerScore ent.playerType, -10
+        ent.die()
       if ent.type is 'Bomb'
         ent.boom?()
       if ent.type is 'Item'
@@ -112,7 +112,7 @@ class entity.SuddenDeath
     ctx
     .save()
     # .globalAlpha(0.9)
-    .fillStyle('orange')
+    .fillStyle('#7edc34')
     .fillRect(Math.round(@x), Math.round(@y), @width, @height)
 
     for bloop in @bloops

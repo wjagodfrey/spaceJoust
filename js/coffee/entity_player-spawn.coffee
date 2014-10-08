@@ -12,37 +12,25 @@ class entity.PlayerSpawn
 
   lockoutCount: 30
 
-  isSolidTo: (item) ->
-    (@type is 'Spawn' and (@player.playerType isnt item.playerType or @closed))
+  isSolidTo: (ent) ->
+    false
 
   onBuild: (level) ->
     @reset()
 
   reset: ->
-    @closed = false
-    @hitCount = 0
-    @updateCount = 0
-
     @player?.x = @x + @.width/2 - @.player?.width/2
     @player?.y = @y + @.height/2 - @.player?.height/2
 
-  update: ->
-    if !@closed # then check to see if it should be closed
-      @updateCount++
-      if @updateCount - @hitCount > @lockoutCount
-        @closed = true
-
-  onHit: (col, ent) ->
-    if ent.playerType is @player.playerType and !@closed
-      if @hitCount isnt @updateCount
-        @hitCount = 0
-        @updateCount = 0
-      @hitCount++
+    @player.invincible = true
+    @player.invincibleTimeout = setFrameTimeout =>
+      @player.invincible = false
+    , 1000
 
   draw: (ctx) ->
     ctx
     .save()
-    .globalAlpha(if @closed then 0.8 else 0.2)
+    .globalAlpha(0.2)
     .fillStyle(@player.color)
     .fillRect(Math.round(@x), Math.round(@y), @width, @height)
     .restore()

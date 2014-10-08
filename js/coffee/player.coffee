@@ -12,11 +12,13 @@ class Player
     @xForce= 1.7
     @yForce= 2
 
+    @direction= -1
+
     @spawn= undefined
     @item= undefined
     @cache= {}
 
-    @vel= 
+    @vel=
       x: 0
       y: 0
       mod:
@@ -30,28 +32,13 @@ class Player
 
     @effects= {}
 
+    @invincibleTimeout = ->
+
     # On Build Event
     @onBuild = (level) ->
       @other = players[if playerType is 'alien' then 'human' else 'alien']
       @maxLives = 5
       @lives = @maxLives
-      @score = 0
-
-    # Player Events
-    @events =
-      top_col: (ent) ->
-        if ent.solid or ent.isSolidTo?(players[playerType])
-          players[playerType].vel.mod.up.y = 0
-      bottom_col: (ent) ->
-        if ent.solid or ent.isSolidTo?(players[playerType])
-          players[playerType].vel.mod.gravity.y = 0
-          if !players[playerType].keys.w?.pressed
-            removePlayerVelocity playerType, 'up'
-        if ent.type is 'Player'
-          ent.die =>
-            modifyPlayerScore playerType, 50
-      left_col: ->
-      right_col: ->
 
     # Player Keys
     @keys = {}
@@ -74,6 +61,7 @@ class Player
         #   removePlayerVelocity playerType, 'down'
     @keys[controlScheme.left] =
         press: ->
+          players[playerType].direction = -1
           addPlayerVelocity playerType, 'left', {
             x: -players[playerType].xForce
           }
@@ -81,6 +69,7 @@ class Player
           removePlayerVelocity playerType, 'left'
     @keys[controlScheme.right] =
         press: ->
+          players[playerType].direction = 1
           addPlayerVelocity playerType, 'right', {
             x: players[playerType].xForce
           }
@@ -119,6 +108,16 @@ class Player
         delete @effects[name]
       , time
 
+  onHit: (c, e, solid) =>
+    if solid
+      if c.top
+        @vel.mod.up?.y = 0
+      if c.bottom
+        @vel.mod.gravity.y = 0
+        if !@keys.w?.pressed
+          removePlayerVelocity @playerType, 'up'
+        if e.type is 'Player'
+          e.die()
 
   update: ->
     if !@pause
@@ -136,8 +135,11 @@ class Player
     applyPhysics @
 
   die: (before, after) ->
-    if @spawn?.closed
+    if !@invincible
       before?()
+
+      level?.addBlinkUpdate @x, @y, '-1', true
+
       @lives--
       @vel = 
         x: 0
@@ -147,6 +149,7 @@ class Player
             x: 0
             y: 0
       @spawn.reset()
+
       after?()
 
 
@@ -154,7 +157,7 @@ class Player
     if level?
 
 
-      if not @spawn.closed
+      if @invincible
         ctx
         .save()
         .globalAlpha(0.5)
@@ -176,4 +179,12 @@ class Player
           ctx
           .fillStyle(@item.color)
           .fillRect(Math.round(@x+@width/2-2),Math.round(@y+@height/2-2), 4,4)
-      ctx.restore()
+
+      ctx
+      .fillStyle('red')
+      .fillRect(
+        Math.round((@x+@width/2) - 1 + (if @direction > 0 then +2 else -2))
+        Math.round(@y+@height/2 - 1)
+        2,2
+      )
+      .restore()

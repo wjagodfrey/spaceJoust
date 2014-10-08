@@ -23,8 +23,7 @@ levels.level_middle =
     vars = {}
 
     # Foreground
-    @foreground =
-      score: new entity.Score
+    # @foreground = {}
 
 
     # Midground
@@ -90,7 +89,7 @@ levels.level_middle =
           level.midground.laser_2_middle.on = false
       , true
 
-      suddenDeath: new entity.SuddenDeath @, 23
+      slime: new entity.Slime @, 23
 
 
     # Item Spawner
@@ -139,15 +138,17 @@ levels.level_middle =
         level.offsetX = 0
         level.offsetY = 0
 
-  floatingScores: []
+  blinkUpdates: []
 
-  addFloatingScore: (x, y, amount) ->
-    @floatingScores.push
+  addBlinkUpdate: (x, y, text, red) ->
+    console.log x, y, text, red
+    @blinkUpdates.push
       x: x
       y: y
-      amount: amount
+      text: text
       alpha: 1
-      container: @floatingScores
+      red: red
+      container: @blinkUpdates
       update: ->
         @y -= 0.8
         @alpha -= 0.02
@@ -169,8 +170,8 @@ levels.level_middle =
         .textBaseline('top')
 
         .textAlign('center')
-        .fillStyle(if @amount <= 0 then '#e00005' else '#79df06')
-        .fillText(@amount, @x, @y)
+        .fillStyle(if @red then '#e00005' else '#79df06')
+        .fillText(@text, @x, @y)
 
         .restore()
 
@@ -180,6 +181,10 @@ levels.level_middle =
     if players.human.lives is 0 then @winner = 'Alien'
     if players.alien.lives is 0 then @winner = 'human'
     level.shake.update()
+
+    for update in @blinkUpdates
+      update.update()
+
 
   drawBackground: ->
     @render
@@ -203,3 +208,6 @@ levels.level_middle =
       ent.update?()
       ent.draw?(@render)
     @render.restore()
+
+    for update in @blinkUpdates
+      update.draw @render

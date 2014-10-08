@@ -78,10 +78,6 @@ loadLevel = (name) =>
   root.level = level = levels["level_#{name}"] or {}
   level.onBuild?()
 
-modifyPlayerScore = (player, score) ->
-  level?.addFloatingScore players[player].x, players[player].y, score
-  players[player].score += score
-
 addPlayerVelocity = (player, name, vector) ->
   players[player].vel.mod[name] = {}
   if vector.x
@@ -103,14 +99,16 @@ applyPhysics = (ent1) ->
 
       if ent1 isnt ent2
 
-        ox = ent2.x
-        ow = ent2.width
-        oy = ent2.x
-        oh = ent2.height
-
         if col = hasBoxHit(
-          ent1.x + ent1.vel.x,ent1.y + ent1.vel.y, ent1.width,ent1.height
-          ent2.x, ent2.y, ent2.width, ent2.height
+          ent1.x + ent1.vel.x
+          ent1.y + ent1.vel.y
+          ent1.width
+          ent1.height
+
+          ent2.x
+          ent2.y
+          ent2.width
+          ent2.height
         )
 
           ent1Solid = ent1.isSolidTo?(ent2)
@@ -166,7 +164,6 @@ applyPhysics = (ent1) ->
                     xCorrection = correction
                 ent1Collisions.left = true
                 ent2Collisions.right = true
-                ent1.events?.left_col?(ent2)
               # collision on the right moving right
               else if (xDepth < yDepth or !ent1.vel.y) and ent1.vel.x > 0 and (col.right or !col.left)
                 if runCorrection
@@ -176,7 +173,6 @@ applyPhysics = (ent1) ->
                     xCorrection = correction
                 ent1Collisions.right = true
                 ent2Collisions.left = true
-                ent1.events?.right_col?(ent2)
 
               # collision on the top moving up
               if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y < 0 and (col.top or !col.bottom)
@@ -187,7 +183,6 @@ applyPhysics = (ent1) ->
                     yCorrection = correction
                 ent1Collisions.top = true
                 ent2Collisions.bottom = true
-                ent1.events?.top_col?(ent2)
               # collision on the bottom moving down
               else if (yDepth < xDepth or !ent1.vel.x) and ent1.vel.y > 0 and (col.bottom or !col.top)
                 if runCorrection
@@ -197,7 +192,6 @@ applyPhysics = (ent1) ->
                     yCorrection = correction
                 ent1Collisions.bottom = true
                 ent2Collisions.top = true
-                ent1.events?.bottom_col?(ent2)
 
           ent2.onHit?(ent2Collisions, ent1, ent1Solid)
           ent1.onHit?(ent1Collisions, ent2, ent2Solid)

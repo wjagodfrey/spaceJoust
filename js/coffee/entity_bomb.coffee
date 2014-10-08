@@ -32,7 +32,7 @@ class entity.Bomb
     @lockoutCount = if @yBounce or @xBounce then 20 else 5
 
   noCorrectionWith: (ent) ->
-    ent.type in ['SuddenDeath', 'Laser']
+    ent.type in ['Lava', 'Laser']
 
   isSolidTo: (ent) ->
     @armed
@@ -41,6 +41,77 @@ class entity.Bomb
     level.shake.start()
     @explode.exploding = yes
 
+  update: ->
+    if !@armed # check to see if it should be armed
+      @updateCount++
+      if @updateCount - @hitCount > @lockoutCount
+        @armed = true
+    else # if armed
+      if @explode.exploding #if exploding
+        if @explode.size < @explode.sizeLimit
+          @explode.size += @explode.sizeSpeed
+
+          ent = @ent
+
+          applyPhysics
+            isSolidTo: -> true
+            type: 'Explosion'
+            x: @x-@explode.size/2
+            y: @y-@explode.size/2
+            width: @explode.size
+            height: @explode.size
+            vel:
+              x: 0
+              y: 0
+            onHit: (c, e, solid) ->
+              if e.type is 'Player' # this is how players die in explosions
+
+                e.die()
+
+        else
+          # remove bomb
+          level.midground?[@key] = undefined
+          delete level.midground?[@key]
+      else if (@xBounce or @yBounce) #if not exploding and bouncable
+
+        if @yBounce
+          @vel.y = @force * @direction.y
+        if @xBounce
+          @vel.x = @force * @direction.x
+
+      applyPhysics @
+
+
+  onHit: (c, e, solid) ->
+    #if not armed and is player who planted, reset arm timer
+    if e.type is 'Player' and e.playerType is @ent.playerType and !@armed
+      if @hitCount isnt @updateCount
+        @hitCount = 0
+        @updateCount = 0
+      @hitCount++
+
+    # if armed and is a valid object, harmlessly detonate
+    else if (
+      e.type in ['Laser','Explosion','Bomb'] or
+      (e.type is 'Player' and !e.invincible)
+    ) and
+    @armed and
+    solid
+      @boom()
+
+    # otherwise bounce off things
+    else if (@xBounce or @yBounce) and solid
+
+      if @yBounce
+        if c.bottom
+          @direction.y = -1
+        else if c.top
+          @direction.y = 1
+      if @xBounce
+        if c.right
+          @direction.x = -1
+        else if c.left
+          @direction.x = 1
 
   draw: (ctx) ->
     if !@explode.exploding
@@ -76,75 +147,3 @@ class entity.Bomb
       .fillRect(Math.round(@x-@explode.size/2), Math.round(@y-@explode.size/2), @explode.size, @explode.size)
       .restore()
 
-  update: ->
-    if !@armed # check to see if it should be armed
-      @updateCount++
-      if @updateCount - @hitCount > @lockoutCount
-        @armed = true
-    else # if armed
-      if @explode.exploding #if exploding
-        if @explode.size < @explode.sizeLimit
-          @explode.size += @explode.sizeSpeed
-
-          # run onHit events
-
-          ent = @ent
-
-          applyPhysics
-            isSolidTo: -> true
-            type: 'Explosion'
-            x: @x-@explode.size/2
-            y: @y-@explode.size/2
-            width: @explode.size
-            height: @explode.size
-            vel:
-              x: 0
-              y: 0
-            onHit: (c, e, solid) ->
-              if e.type is 'Player' # this is how players die in explosions
-
-                e.die =>
-                  if e.playerType is ent.playerType
-                    modifyPlayerScore e.playerType, -5
-                  else
-                    modifyPlayerScore ent.playerType, +200000
-
-        else
-          # remove bomb
-          level.midground?[@key] = undefined
-          delete level.midground?[@key]
-      else if (@xBounce or @yBounce) #if not exploding and bouncable
-
-        if @yBounce
-          @vel.y = @force * @direction.y
-        if @xBounce
-          @vel.x = @force * @direction.x
-
-      applyPhysics @
-
-
-  onHit: (c, e, solid) ->
-    #if not armed and is player who planted, reset arm timer
-    if e.type is 'Player' and e.playerType is @ent.playerType and !@armed
-      if @hitCount isnt @updateCount
-        @hitCount = 0
-        @updateCount = 0
-      @hitCount++
-
-    # if armed and is a valid object, harmlessly detonate
-    else if e.type in ['Player','Laser','Explosion','Bomb'] and @armed and solid
-      @boom()
-
-    # otherwise bounce off things
-    else if (@xBounce or @yBounce) and solid
-
-      if @yBounce
-        if c.bottom
-          @direction.y = -1
-        else if c.top
-          @direction.y = 1
-      if @xBounce
-        if c.right
-          @direction.x = -1
-        else if c.left
-          @direction.x = 1
