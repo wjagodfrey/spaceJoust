@@ -6,6 +6,8 @@ class entity.Button
     @type = 'Button'
     @pressed = false
 
+    @cache = {}
+
   isSolidTo: -> true
 
   onHit: (col, ent) ->
@@ -13,6 +15,8 @@ class entity.Button
       @hadHit = true
 
       if (col.top or col.right or col.left) and !@pressed
+        if !@pressed
+          sound.play('button_up')
         @pressed = true
         @yCache = @y
         @height = 1
@@ -21,6 +25,7 @@ class entity.Button
         @onPress?(col, ent)
 
       else if @yCache? and !@once
+        sound.play('button_down')
         @onPress?(col, ent)
 
   update: ->
@@ -29,6 +34,7 @@ class entity.Button
       @height = 2
       @y = @yCache
       delete @yCache
+      sound.play('button_up')
       @onRelease?()
     @hadHit = false
 

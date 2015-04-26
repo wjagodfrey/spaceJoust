@@ -49,10 +49,13 @@ gameCq = cq().framework(
     touchMove = false
 
   onkeydown: (key, e) ->
-    for name, player of players
-      if player.keys[key]? and !player.keys[key].pressed
-        player.keys[key].pressed = true
-        player.keys[key].press?()
+    if gameKeys[key]?
+      gameKeys[key]()
+    else
+      for name, player of players
+        if player.keys[key]? and !player.keys[key].pressed
+          player.keys[key].pressed = true
+          player.keys[key].press?()
 
   onkeyup: (key) ->
     for name, player of players
@@ -64,13 +67,48 @@ gameCq = cq().framework(
   onrender: (delta, time) ->
     @clear('#202424')
 
-    if level?
+    # make resizeds show pixel edges
+    @context.mozImageSmoothingEnabled    =
+    @context.webkitImageSmoothingEnabled =
+    @context.msImageSmoothingEnabled     =
+    @context.imageSmoothingEnabled       = false
 
-      # make resizeds show pixel edges
-      @context.mozImageSmoothingEnabled    =
-      @context.webkitImageSmoothingEnabled =
-      @context.msImageSmoothingEnabled     =
-      @context.imageSmoothingEnabled       = false
+    if !loaded # HACKY LOADING SCREEN
+      @.fillStyle('white')
+
+      loadingBar =
+        width: @canvas.width/2
+        margin: @canvas.width/4
+      loadingBar.sectionWidth = loadingBar.width / soundsToLoad.length
+
+      # draw transparent background
+      @
+      .save()
+      .globalAlpha(0.5)
+      .fillRect(
+        loadingBar.margin
+        @canvas.height/2 - 50
+        loadingBar.width
+        100
+      )
+      .restore()
+      # draw progress bar
+      @
+      .save()
+      .globalAlpha(1)
+      .fillRect(
+        loadingBar.margin
+        @canvas.height/2 - 50
+        loadingBar.sectionWidth * soundsLoadedCount
+        100
+      )
+      .restore()
+
+
+      @.restore()
+
+    else if level?
+
       level.render.context.mozImageSmoothingEnabled    =
       level.render.context.webkitImageSmoothingEnabled =
       level.render.context.msImageSmoothingEnabled     =
@@ -103,7 +141,7 @@ gameCq = cq().framework(
         .textAlign('center')
         .textBaseline('middle')
         .fillStyle(players[level.winner.toLowerCase()].color)
-        .wrappedText("The #{level.winner} won!", level.width/2, level.height/2 - 10, level.width)
+        .wrappedText("#{level.winner} won!", level.width/2, level.height/2 - 10, level.width)
         .restore()
 
 
@@ -125,16 +163,18 @@ gameCq = cq().framework(
 
 gameCanvas = gameCq.canvas
 
+gameCq.appendTo 'body'
+gameCanvas.width  = root.innerWidth
+gameCanvas.height = root.innerHeight
+
+
 onEvent 'assetsLoaded', ->
 
-  console.log 'loaded'
+  gameMusic = sound.play('gameMusic', undefined, undefined, undefined, -1)
+
+  # gameMusic.setMute(true) # TODO dev
 
   loadLevel 'middle'
-
-  gameCanvas.width  = root.innerWidth
-  gameCanvas.height = root.innerHeight
-
-  gameCq.appendTo 'body'
 
   mouse.x = gameCanvas.width / 2
   mouse.y = gameCanvas.height / 2

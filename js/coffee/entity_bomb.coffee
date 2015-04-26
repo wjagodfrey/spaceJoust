@@ -1,6 +1,3 @@
-bombBehaviourIndicatorColor = '#939393'
-bombBackgroundColor = '#222222'
-
 class entity.Bomb
   constructor: (@ent, @key, @xBounce, @yBounce) ->
     # Bomb entity
@@ -31,6 +28,8 @@ class entity.Bomb
     @updateCount  = 0
     @lockoutCount = if @yBounce or @xBounce then 20 else 5
 
+    @cache = {}
+
   noCorrectionWith: (ent) ->
     ent.type in ['Lava', 'Laser']
 
@@ -39,6 +38,12 @@ class entity.Bomb
 
   boom: ->
     level.shake.start()
+    if !@explode.exploding
+      playOneOf [
+        'explosion1'
+        'explosion2'
+        'explosion3'
+      ]
     @explode.exploding = yes
 
   update: ->
@@ -92,7 +97,7 @@ class entity.Bomb
 
     # if armed and is a valid object, harmlessly detonate
     else if (
-      e.type in ['Laser','Explosion','Bomb'] or
+      e.type in ['Laser','Explosion', 'Bomb'] or
       (e.type is 'Player' and !e.invincible)
     ) and
     @armed and
@@ -117,26 +122,26 @@ class entity.Bomb
     if !@explode.exploding
       ctx
       .save()
-      .fillStyle(bombBackgroundColor)
+      .fillStyle(colors.bomb.background)
       .fillRect(Math.round(@x), Math.round(@y), @width, @height)
       .restore()
 
       if @xBounce
         ctx
         .save()
-        .fillStyle(if @armed then @ent.color else bombBehaviourIndicatorColor)
+        .fillStyle(if @armed then colors.bomb.on else colors.bomb.off)
         .fillRect(Math.round(@x), Math.round(@y+2), @width, @height-4)
         .restore()
       if @yBounce
         ctx
         .save()
-        .fillStyle(if @armed then @ent.color else bombBehaviourIndicatorColor)
+        .fillStyle(if @armed then colors.bomb.on else colors.bomb.off)
         .fillRect(Math.round(@x+2), Math.round(@y), @width-4, @height)
         .restore()
 
       ctx
       .save()
-      .fillStyle(if @armed then @ent.color else bombBehaviourIndicatorColor)
+      .fillStyle(if @armed then colors.bomb.on else colors.bomb.off)
       .fillRect(Math.round(@x+1), Math.round(@y+1), @width-2, @height-2)
       .restore()
 

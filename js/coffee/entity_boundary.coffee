@@ -3,6 +3,8 @@ class entity.Boundary
 
     @type = 'Boundary'
 
+    @cache = {}
+
   isSolidTo: -> true
 
   draw: (ctx) ->

@@ -29,8 +29,8 @@ task 'build', 'Watch all jade, stylus and coffeescript files and build appropria
     "#{jsPref}item_bomb.coffee"
     "#{jsPref}level_middle.coffee"
     "#{jsPref}player.coffee"
-    "#{jsPref}player_human.coffee"
-    "#{jsPref}player_alien.coffee"
+    "#{jsPref}player_blue.coffee"
+    "#{jsPref}player_red.coffee"
     "#{jsPref}framework.coffee"
   ].join(' ')
 
@@ -56,3 +56,20 @@ task 'build', 'Watch all jade, stylus and coffeescript files and build appropria
 task 'start', 'Start a simple python HTTP file server', (options) ->
   console.log 'Starting dev server on port'.cyan.bold, '8000'.red
   http.createServer(connect().use(serveStatic(__dirname))).listen 8000
+
+
+###
+  doc generation task
+###
+
+task 'docs', 'Write jsdocs', (options) ->
+  questTask = exec "
+    ./node_modules/.bin/codo
+    --name 'Space Joust'
+    --title 'Space Joust Docs'
+  ", (err, stdout, stderr) ->
+    throw err if err
+    console.log stdout + stderr
+  questTask.stdout.on 'data', (data) -> console.log data
+  questTask.stderr.on 'data', (data) -> console.log data + "\x07"
+

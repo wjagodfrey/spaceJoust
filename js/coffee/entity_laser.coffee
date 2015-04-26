@@ -3,11 +3,14 @@ class entity.Laser
 
     @type = 'Laser'
 
+    @cache = {}
+
   isSolidTo: (ent) ->
     @on
 
   onHit: (col, ent) ->
     if @on and ent.type is 'Player'
+      sound.play('electricburn')
       ent.die()
 
   draw: (ctx) ->

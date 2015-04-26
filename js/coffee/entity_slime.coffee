@@ -6,13 +6,8 @@ class entity.Slime
     @x = 0
     @y = @level.height - @height
     @width = @level.width
-    # @height = 0
 
-    @grow = false
-    @timeout = setFrameTimeout =>
-      @startGrowth()
-    , 10000
-
+    @cache = {}
 
     randomBloop = =>
       setFrameTimeout =>
@@ -31,29 +26,13 @@ class entity.Slime
     x: 0
     y: 0
 
-  speed: 0.01
-
   bloops: []
 
   isSolidTo: (ent) -> true
 
-
-  startGrowth: ->
-    @grow = true
-  stopGrowth: ->
-    @timeout?()
-    @grow = false
-    @height -= (@speed + 3)
-    @y = level.height - @height
-    applyPhysics @
-
   update: ->
-    if @grow then @height += @speed
     @y = level.height - @height + 1
     applyPhysics @
-
-    if @height >= level.height/3
-      @stopGrowth()
 
     for i, bloop of @bloops
 
@@ -94,13 +73,21 @@ class entity.Slime
         height    : 1
         speed     : ((height / 12) * 0.8) * (Math.round(Math.random() + 1.5))
 
-      if ent.type is 'Player'
-        ent.die()
-      if ent.type is 'Bomb'
-        ent.boom?()
-      if ent.type is 'Item'
-        ent.destroy?()
+      if !ent.cache.burning
+        if ent.type is 'Player'
+          ent.die()
+        if ent.type is 'Bomb'
+          ent.boom?()
+        if ent.type is 'Item'
+          ent.destroy?()
 
+        if ent.width > 4
+          sound.play('burn_large')
+        else
+          sound.play('burn_small')
+
+        if ent.type isnt 'Player'
+          ent.cache.burning = true
 
 
 
@@ -111,8 +98,8 @@ class entity.Slime
   draw: (ctx) ->
     ctx
     .save()
-    # .globalAlpha(0.9)
-    .fillStyle('#7edc34')
+    .globalAlpha(0.9)
+    .fillStyle(colors.slime.main)
     .fillRect(Math.round(@x), Math.round(@y), @width, @height)
 
     for bloop in @bloops

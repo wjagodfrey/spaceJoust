@@ -3,30 +3,36 @@ bombId = 0
 class item.Bomb extends Item
   constructor: (@container, @key, @spawner, @xBounce, @yBounce) ->
 
-  color: bombBackgroundColor
+  color: colors.bomb.background
 
   onHit: (col, ent) ->
-    if ent.type is 'Player' and !ent.item? #if player doesn't have an item
+    if ent.type is 'Player' and !ent.item?
+      super(col, ent)
 
-      ent.item =
+  applyItem: (player) ->
+    if !player.item? #if player doesn't have an item
+
+      player.item =
         use: =>
 
           if not hasBoxHit(
-            ent.x + ent.width/2 - 3
-            ent.y + ent.height/2 - 3
+            player.x + player.width/2 - 3
+            player.y + player.height/2 - 3
             6
             6
-            ent.spawn.x
-            ent.spawn.y
-            ent.spawn.width
-            ent.spawn.height
+            player.spawn.x
+            player.spawn.y
+            player.spawn.width
+            player.spawn.height
           )
 
-            ent.item = undefined
+            player.item = undefined
 
-            key = "#{ent.playerType}_bomb-#{bombId++}"
+            key = "#{player.playerType}_bomb-#{bombId++}"
 
-            level.midground[key] = new entity.Bomb ent, key, @xBounce, @yBounce
+            sound.play('placeBomb')
+
+            level.midground[key] = new entity.Bomb player, key, @xBounce, @yBounce
 
 
         draw: (ctx) =>
@@ -35,37 +41,47 @@ class item.Bomb extends Item
           ctx
           .save()
           .fillStyle(@color)
-          .fillRect(Math.round(ent.x+(ent.width-width)/2), Math.round(ent.y+(ent.height-height)/2), width, height)
+          .fillRect(
+            Math.round(player.x+(player.width-width)/2)
+            Math.round(player.y+(player.height-height)/2)
+            width
+            height
+          )
           .restore()
           if @xBounce
             ctx
             .save()
-            .fillStyle(bombBehaviourIndicatorColor)
-            .fillRect(Math.round(ent.x+(ent.width-width)/2), Math.round(ent.y+(ent.height-height)/2+2), width, height-4)
+            .fillStyle(colors.bomb.off)
+            .fillRect(
+              Math.round(player.x+(player.width-width)/2)
+              Math.round(player.y+(player.height-height)/2+2)
+              width
+              height-4
+            )
             .restore()
           if @yBounce
             ctx
             .save()
-            .fillStyle(bombBehaviourIndicatorColor)
-            .fillRect(Math.round(ent.x+(ent.width-width)/2+2), Math.round(ent.y+(ent.height-height)/2), width-4, height)
+            .fillStyle(colors.bomb.off)
+            .fillRect(
+              Math.round(player.x+(player.width-width)/2+2)
+              Math.round(player.y+(player.height-height)/2)
+              width-4
+              height
+            )
             .restore()
-
-      # remove item
-      @spawner?.itemCount--
-      @container?[@key] = undefined
-      delete @container?[@key]
 
   draw: (ctx) ->
     super ctx
     if @xBounce
       ctx
       .save()
-      .fillStyle(bombBehaviourIndicatorColor)
+      .fillStyle(colors.bomb.off)
       .fillRect(Math.round(@x), Math.round(@y+2), @width, @height-4)
       .restore()
     if @yBounce
       ctx
       .save()
-      .fillStyle(bombBehaviourIndicatorColor)
+      .fillStyle(colors.bomb.off)
       .fillRect(Math.round(@x+2), Math.round(@y), @width-4, @height)
       .restore()

@@ -1,9 +1,12 @@
-players.alien = new Player(
-  'alien'
-  '#9be83c'
+players.red = new Player(
+  'red'
+  colors.players.red
+  {
     up: 'w'
     down: 's'
     left: 'a'
     right: 'd'
     item: 'g'
+  }
+  1
 )

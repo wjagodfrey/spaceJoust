@@ -12,6 +12,9 @@ fireEvent = (eventName, args...) ->
     for eventHandler in events[eventName]
       eventHandler(args...)
 
+playOneOf = (sounds) ->
+  randomSound = Math.round(Math.random() * (sounds.length - 1))
+  sound.play(sounds[randomSound])
 
 # frame dependant timing functions (won't keep running if tab isn't visible)
 @frameCount = 0
@@ -73,6 +76,26 @@ hasBoxHit = (_ax, _ay, _awidth, _aheight, _bx, _by, _bwidth, _bheight) ->
     }
   else
     return false
+
+@lightenDarkenColor = lightenDarkenColor = (col, amt) ->
+  usePound = false
+  if col[0] is "#"
+    col = col.slice(1)
+    usePound = true
+  num = parseInt(col, 16)
+  r = (num >> 16) + amt
+  if r > 255
+    r = 255
+  else r = 0  if r < 0
+  b = ((num >> 8) & 0x00FF) + amt
+  if b > 255
+    b = 255
+  else b = 0  if b < 0
+  g = (num & 0x0000FF) + amt
+  if g > 255
+    g = 255
+  else g = 0  if g < 0
+  ((if usePound then "#" else "")) + (g | (b << 8) | (r << 16)).toString(16)
 
 loadLevel = (name) =>
   root.level = level = levels["level_#{name}"] or {}

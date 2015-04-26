@@ -1,8 +1,11 @@
+# Base class for Player entities
+
 class Player
   constructor: (
-    playerType
+    @playerType
     @color
     controlScheme
+    @direction= -1
   ) ->
 
     @x= 0
@@ -12,11 +15,10 @@ class Player
     @xForce= 1.7
     @yForce= 2
 
-    @direction= -1
-
     @spawn= undefined
     @item= undefined
     @cache= {}
+    @subEntities = {}
 
     @vel=
       x: 0
@@ -28,17 +30,20 @@ class Player
 
     pause: false
 
-    @playerType = playerType
-
     @effects= {}
+
+    # @property [Object] A player-held item
+    @item = undefined
 
     @invincibleTimeout = ->
 
     # On Build Event
     @onBuild = (level) ->
-      @other = players[if playerType is 'alien' then 'human' else 'alien']
-      @maxLives = 5
-      @lives = @maxLives
+      @other = players[if playerType is 'red' then 'blue' else 'red']
+      @maxLives = 10
+      @lives = @maxLives - 3
+
+    playerType = @playerType
 
     # Player Keys
     @keys = {}
@@ -47,18 +52,17 @@ class Player
         addPlayerVelocity playerType, 'up', {
           y: -players[playerType].yForce
         }
+        # fight against the punch
+        if players[playerType].vel.mod.punch?.y
+          players[playerType].vel.mod.punch.y -= players[playerType].yForce / 8
+          if players[playerType].vel.mod.punch.y < 0
+            players[playerType].vel.mod.punch.y = 0
+
         players[playerType].vel.mod.gravity.y = 0
-    #   release: ->
-    #     removePlayerVelocity playerType, 'up'
+        sound.play('flap')
     @keys[controlScheme.down] =
         press: ->
           removePlayerVelocity playerType, 'up'
-      #     addPlayerVelocity playerType, 'down', {
-      #       y: players[playerType].yForce
-      #     }
-      #     players[playerType].vel.mod.gravity.y = 0
-        # release: ->
-        #   removePlayerVelocity playerType, 'down'
     @keys[controlScheme.left] =
         press: ->
           players[playerType].direction = -1
@@ -86,6 +90,9 @@ class Player
   useItem: ->
     @item?.use()
 
+  removeAllEffects: ->
+    for name, effect of @effects
+      @removeEffect name
   removeEffect: (name) ->
     if @effects[name]?
       @effects[name].timeout()
@@ -114,10 +121,21 @@ class Player
         @vel.mod.up?.y = 0
       if c.bottom
         @vel.mod.gravity.y = 0
+        @vel.mod.punch?.y = 0
+
         if !@keys.w?.pressed
           removePlayerVelocity @playerType, 'up'
+
         if e.type is 'Player'
-          e.die()
+          if !e.invincible and @vel.y > 1
+              sound.play('pop')
+              addPlayerVelocity e.playerType, 'punch', {
+                y: @vel.y
+              }
+
+
+          # e.die()
+
 
   update: ->
     if !@pause
@@ -132,13 +150,18 @@ class Player
         if mod.x then @vel.x += mod.x
         if mod.y then @vel.y += mod.y
 
+      for name, subEnt of @subEntities
+        subEnt.update?()
+
     applyPhysics @
 
   die: (before, after) ->
     if !@invincible
       before?()
 
-      level?.addBlinkUpdate @x, @y, '-1', true
+      level?.addBlinkUpdate @spawn.x + @spawn.width / 2, @spawn.y, '-1', true
+
+      @removeAllEffects()
 
       @lives--
       @vel = 
@@ -156,21 +179,20 @@ class Player
   draw: (ctx, delta, time) ->
     if level?
 
-
-      if @invincible
-        ctx
-        .save()
-        .globalAlpha(0.5)
-        .strokeStyle(@color)
-        .lineWidth(2)
-        .strokeRect(Math.round(@x),Math.round(@y), @width,@height)
-        .restore()
-
-
       ctx
       .save()
-      .fillStyle(@color)
+
+      # draw the body
+      .fillStyle(colors.playerFlesh)
       .fillRect(Math.round(@x),Math.round(@y), @width,@height)
+
+      # draw the headband
+      .fillStyle(@color)
+      # .fillRect(Math.round(@x),Math.round(@y + 1), @width,1)
+
+      # draw the pants
+      .fillRect(Math.round(@x),Math.round(@y + 8), @width, 2)
+      .fillRect(Math.round(@x + 2 + (1 * @direction)),Math.round(@y + 10), 3, 2)
 
       if @item?
         if @item.draw?
@@ -180,11 +202,22 @@ class Player
           .fillStyle(@item.color)
           .fillRect(Math.round(@x+@width/2-2),Math.round(@y+@height/2-2), 4,4)
 
-      ctx
-      .fillStyle('red')
-      .fillRect(
-        Math.round((@x+@width/2) - 1 + (if @direction > 0 then +2 else -2))
-        Math.round(@y+@height/2 - 1)
-        2,2
-      )
-      .restore()
+      for name, subEnt of @subEntities
+        subEnt.draw?(ctx, delta, time)
+
+
+
+      ctx.restore()
+
+      if @invincible
+        ctx
+        .save()
+        .globalAlpha(0.5)
+        .fillStyle(colors.invincible)
+        .fillRect(
+          Math.round(@x - 1)
+          Math.round(@y - 1)
+          @width + 2
+          @height + 2
+        )
+        .restore()

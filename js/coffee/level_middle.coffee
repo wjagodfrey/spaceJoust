@@ -36,24 +36,21 @@ levels.level_middle =
       right: new entity.Boundary 296, 0, 4, 200
 
       # SPAWNS
-      # alien
-      spawn_alien: new entity.PlayerSpawn 50, 20, 'Alien'
-      # human
-      spawn_human: new entity.PlayerSpawn 230, 20, 'human'
+      # red
+      spawn_red: new entity.PlayerSpawn 50, 52, 'Red'
+      # blue
+      spawn_blue: new entity.PlayerSpawn 230, 52, 'Blue'
 
       # BOUNDARIES
       row1_left: new entity.Boundary 40, 55, 60, 4
       row1_right: new entity.Boundary 200, 55, 60, 4
-      row1_barrier_middle: new entity.Boundary 148, 30, 4, 40
+      row1_barrier_middle: new entity.Boundary 148, 50, 4, 25
       row1_barrier_right: new entity.Boundary 200, 59, 4, 15
       row1_barrier_left: new entity.Boundary 96, 59, 4, 15
 
       row2_middle: new entity.Boundary 115, 110, 70, 4
       row2_left: new entity.Boundary 30, 110, 50, 4
       row2_right: new entity.Boundary 220, 110, 50, 4
-
-      row3_left: new entity.Boundary 40, 150, 90, 4
-      row3_right: new entity.Boundary 170, 150, 90, 4
 
       # LASERS AND BUTTONS
       # top laser/button combo
@@ -69,7 +66,7 @@ levels.level_middle =
       , true, '#21b2b4'
 
       # top laser/button combo
-      laser_2_middle: new entity.Laser 148, 4, 4, 26, false
+      laser_2_middle: new entity.Laser 148, 4, 4, 46, false
       laser_2_right_button: new entity.Button 204, 53
       , ->
         vars.laser_2_right_button =
@@ -100,7 +97,7 @@ levels.level_middle =
       ['Bomb', true, true]
       'NoWingsEnemy'
       'AddLife'
-    ], @width, @height, 7)
+    ], @width, @height, 4)
 
     for i, source of [players, @midground, @foreground]
       for ii, ent of source
@@ -141,10 +138,9 @@ levels.level_middle =
   blinkUpdates: []
 
   addBlinkUpdate: (x, y, text, red) ->
-    console.log x, y, text, red
     @blinkUpdates.push
-      x: x
-      y: y
+      x: Math.round(x)
+      y: Math.round(y)
       text: text
       alpha: 1
       red: red
@@ -178,12 +174,12 @@ levels.level_middle =
   update: ->
     @render.canvas.width = @width
     @render.canvas.height = @height
-    if players.human.lives is 0 then @winner = 'Alien'
-    if players.alien.lives is 0 then @winner = 'human'
+    if players.blue.lives is 0 then @winner = 'Red'
+    if players.red.lives is 0 then @winner = 'Blue'
     level.shake.update()
 
     for update in @blinkUpdates
-      update.update()
+      update?.update()
 
 
   drawBackground: ->

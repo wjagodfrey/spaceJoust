@@ -5,9 +5,13 @@ class Item_Spawner
   itemCount: 0
   itemIdCount: 0
   setSpawnTimer: ->
-    minTime = 100
-    maxTime = 1000
+    minTime = 1000
+    maxTime = 10000
+
+    # TODO dev
     devTime = 0
+    @itemLimit = 10
+
     time = if devTime? then devTime else Math.round(Math.random() * minTime) + maxTime
     setFrameTimeout =>
       @spawnNewItem()

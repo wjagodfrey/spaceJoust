@@ -1,21 +1,21 @@
 {
-    "name": "expressions",
-    "version": "0.0.0",
-    "author": "Wilfred Godfrey <w.j.godfrey@gmail.com>",
-    "description": "Graphical expressions interface",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/wilfredjamesgodfrey/expressions.git"
-    },
-    "keywords": [
-    ],
-    "dependencies": {
-        "colors": "0.6.x",
-        "connect": "3.1.x",
-        "serve-static": "1.4.x"
-    },
-    "license": "MIT",
-    "engines": {
-        "node": ">=0.10.*"
-    }
+  "name": "expressions",
+  "version": "0.0.0",
+  "author": "Wilfred Godfrey <w.j.godfrey@gmail.com>",
+  "description": "Graphical expressions interface",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wilfredjamesgodfrey/expressions.git"
+  },
+  "keywords": [],
+  "dependencies": {
+    "codo": "^2.0.11",
+    "colors": "0.6.x",
+    "connect": "3.1.x",
+    "serve-static": "1.4.x"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10.*"
+  }
 }
