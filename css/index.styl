@@ -1,9 +1,54 @@
+gray = #757575
+lightest_gray = #D6D6D6
+
 body
   margin 0
   padding 0
   width 100%
   height 100%
-  overflow hidden
+  font-family arial
+  color lightest_gray
+  background #202424
+  
+  &.game-page
+      overflow hidden
 
-canvas
-  // cursor none
+
+a.page-link
+  text-decoration none
+  padding 10px
+  color gray
+  border gray 1px solid
+  border-radius 3px
+  font-size 0.8em
+  display block
+  text-align center
+  &:hover
+    color lightest_gray
+    border-color lightest_gray
+  &.top
+    position: fixed
+    top  10px
+    left 10px
+  &.bottom
+    margin-top 20px
+    width 100%
+
+
+.content
+  max-width: 400px
+  margin 0 auto
+  a
+    color lightest_gray
+    &:hover
+      text-decoration none
+  h1, h2, h3
+    text-decoration underline
+  h1
+    margin-top 80px
+    font-size 2.5em
+  h2
+    margin-top 0
+  img
+    margin 10px
+
