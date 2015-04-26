@@ -40,4 +40,3 @@ colors =
 gameKeys =
   'm': ->
     gameMusic.setMute?(!gameMusic.getMute())
-

@@ -51,6 +51,11 @@ gameCq = cq().framework(
   onkeydown: (key, e) ->
     if gameKeys[key]?
       gameKeys[key]()
+
+    # any key restarts the game
+    if level?.winner
+      level.reset()
+
     else
       for name, player of players
         if player.keys[key]? and !player.keys[key].pressed
@@ -140,9 +145,23 @@ gameCq = cq().framework(
         .font('2em Helvetica')
         .textAlign('center')
         .textBaseline('middle')
-        .fillStyle(players[level.winner.toLowerCase()].color)
-        .wrappedText("#{level.winner} won!", level.width/2, level.height/2 - 10, level.width)
-        .restore()
+
+        if (level.winner is 'draw')
+          level.render
+          .fillStyle(colors.life)
+          .wrappedText("It was a draw!", level.width/2, level.height/2 - 20, level.width)
+
+        else
+          level.render
+          .fillStyle(players[level.winner.toLowerCase()].color)
+          .wrappedText("#{level.winner} won!", level.width/2, level.height/2 - 20, level.width)
+        
+        level.render
+        .fillStyle('white')
+        .font('1em Helvetica')
+        .wrappedText("press any key to play again", level.width/2, level.height/2 + 10, level.width)
+
+        level.render.restore()
 
 
       # draw level render to game canvas

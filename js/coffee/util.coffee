@@ -34,12 +34,15 @@ setFrameTimeout = (callback, time = 0) ->
         removed = true
 updateFrameTimeouts = ->
   targetFrame = root.frameCount++
-  # console.log frame
   if frameTimeouts[targetFrame]
     for callback in frameTimeouts[targetFrame]
       callback()
     frameTimeouts[targetFrame] = undefined
     delete frameTimeouts[targetFrame]
+clearFrameTimeouts = ->
+  for targetFrame, callback of frameTimeouts
+    delete frameTimeouts[targetFrame]
+
 
 
 hasMouseHit = (x, y, width, height) ->

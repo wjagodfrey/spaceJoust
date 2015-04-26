@@ -1,6 +1,3 @@
-# setFrameTimeout ->
-#   fireEvent 'assetsLoaded'
-
 loaded = false
 frameCount = 0
 loadedFrameCount = 0

@@ -176,6 +176,8 @@ levels.level_middle =
     @render.canvas.height = @height
     if players.blue.lives is 0 then @winner = 'Red'
     if players.red.lives is 0 then @winner = 'Blue'
+    if players.red.lives is 0 and players.blue.lives is 0
+       @winner = 'draw'
     level.shake.update()
 
     for update in @blinkUpdates
@@ -207,3 +209,12 @@ levels.level_middle =
 
     for update in @blinkUpdates
       update.draw @render
+
+  reset: ->
+    console.log @
+    for name, ent of @midground
+      delete @midground
+    delete @spawner
+    clearFrameTimeouts()
+    @winner = ''
+    @onBuild()

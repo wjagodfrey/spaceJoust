@@ -27,7 +27,6 @@ class entity.PlayerSpawn
       margin: 2
       keyDepth: 1
       faderTimeout: setTimeout =>
-        console.log @controlsDisplay
         @controlsDisplay.fade = true
       , 3000
 

@@ -91,9 +91,6 @@ class entity.Slime
 
 
 
-    else if ent.type is 'Spawn'
-      @stopGrowth()
-
 
   draw: (ctx) ->
     ctx
