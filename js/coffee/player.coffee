@@ -1,5 +1,3 @@
-# Base class for Player entities
-
 class Player
   constructor: (
     @playerType
@@ -32,7 +30,6 @@ class Player
 
     @effects= {}
 
-    # @property [Object] A player-held item
     @item = undefined
 
     @invincibleTimeout = ->
@@ -44,44 +41,53 @@ class Player
       @lives = @maxLives - 3
 
     playerType = @playerType
+    player = @
 
     # Player Keys
     @keys = {}
     @keys[controlScheme.up] =
       press: ->
         addPlayerVelocity playerType, 'up', {
-          y: -players[playerType].yForce
+          y: -player.yForce
         }
         # fight against the punch
-        if players[playerType].vel.mod.punch?.y
-          players[playerType].vel.mod.punch.y -= players[playerType].yForce / 8
-          if players[playerType].vel.mod.punch.y < 0
-            players[playerType].vel.mod.punch.y = 0
+        if player.vel.mod.punch_down?
+          player.vel.mod.punch_down.y -= player.yForce / 8
 
-        players[playerType].vel.mod.gravity.y = 0
+        player.vel.mod.gravity.y = 0
         sound.play('flap')
     @keys[controlScheme.down] =
         press: ->
           removePlayerVelocity playerType, 'up'
     @keys[controlScheme.left] =
         press: ->
-          players[playerType].direction = -1
+          player.direction = -1
           addPlayerVelocity playerType, 'left', {
-            x: -players[playerType].xForce
+            x: -player.xForce
           }
+
+          # fight against the punch
+          if player.vel.mod.punch_left?.x
+            player.vel.mod.punch_left.x -= player.xForce / 4
+
         release: ->
           removePlayerVelocity playerType, 'left'
     @keys[controlScheme.right] =
         press: ->
-          players[playerType].direction = 1
+          player.direction = 1
           addPlayerVelocity playerType, 'right', {
-            x: players[playerType].xForce
+            x: player.xForce
           }
+
+          # fight against the punch
+          if player.vel.mod.punch_right?.x
+            player.vel.mod.punch_right.x += player.xForce / 4
+
         release: ->
           removePlayerVelocity playerType, 'right'
     @keys[controlScheme.item] =
         press: ->
-          players[playerType].useItem()
+          player.useItem()
 
   type: 'Player'
 
@@ -117,21 +123,53 @@ class Player
 
   onHit: (c, e, solid) =>
     if solid
+      
+
       if c.top
         @vel.mod.up?.y = 0
+
+
       if c.bottom
         @vel.mod.gravity.y = 0
-        @vel.mod.punch?.y = 0
-
+        @vel.mod.punch_down?.y = 0
         if !@keys.w?.pressed
           removePlayerVelocity @playerType, 'up'
 
-        if e.type is 'Player'
-          if !e.invincible and @vel.y > 1
-              sound.play('pop')
-              addPlayerVelocity e.playerType, 'punch', {
-                y: @vel.y
-              }
+
+      if c.bottom or c.top
+        # apply friction to punch slides
+        if @vel.mod.punch_right?
+          if @vel.mod.punch_right?.x
+            @vel.mod.punch_right.x += 0.05
+        if @vel.mod.punch_left?
+          if @vel.mod.punch_left?.x
+            @vel.mod.punch_left.x -= 0.05
+
+      if c.left
+        removePlayerVelocity @playerType, 'punch_right'
+      if c.right
+        removePlayerVelocity @playerType, 'punch_left'
+
+      if e.type is 'Player' and !e.invincible
+        if @vel.y > 1 and c.bottom
+          sound.play('pop')
+          addPlayerVelocity e.playerType, 'punch_down', {
+            y: @vel.y
+          }
+
+        else if @vel.x > 1 and c.right
+          sound.play('pop')
+          addPlayerVelocity e.playerType, 'punch_left', {
+            x: @vel.x
+          }
+          removePlayerVelocity @playerType, 'right'
+
+        else if @vel.x < -1 and c.left
+          sound.play('pop')
+          addPlayerVelocity e.playerType, 'punch_right', {
+            x: @vel.x
+          }
+          removePlayerVelocity @playerType, 'left'
 
 
           # e.die()
@@ -145,6 +183,16 @@ class Player
 
       @vel.x = 0
       @vel.y = 0
+
+      # clean up punch velocities
+      if @vel.mod.punch_right?.x > 0
+        removePlayerVelocity @playerType, 'punch_right'
+      if @vel.mod.punch_left?.x < 0
+        removePlayerVelocity @playerType, 'punch_left'
+      if @vel.mod.punch_down?.y < 0
+        removePlayerVelocity @playerType, 'punch_down'
+
+
 
       for name, mod of @vel.mod
         if mod.x then @vel.x += mod.x

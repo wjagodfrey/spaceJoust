@@ -1019,12 +1019,10 @@
     Item_Spawner.prototype.itemIdCount = 0;
 
     Item_Spawner.prototype.setSpawnTimer = function() {
-      var devTime, maxTime, minTime, time;
-      minTime = 1000;
-      maxTime = 10000;
-      devTime = 0;
-      this.itemLimit = 10;
-      time = devTime != null ? devTime : Math.round(Math.random() * minTime) + maxTime;
+      var maxTime, minTime, time;
+      minTime = 100;
+      maxTime = 5000;
+      time = typeof devTime !== "undefined" && devTime !== null ? devTime : Math.round(Math.random() * minTime) + maxTime;
       return setFrameTimeout((function(_this) {
         return function() {
           _this.spawnNewItem();
@@ -1299,7 +1297,7 @@
         }, true),
         slime: new entity.Slime(this, 23)
       };
-      this.spawner = new Item_Spawner(this.midground, ['Bomb', ['Bomb', true, false], ['Bomb', false, true], ['Bomb', true, true], 'NoWingsEnemy', 'AddLife'], this.width, this.height, 4);
+      this.spawner = new Item_Spawner(this.midground, ['Bomb', ['Bomb', true, false], ['Bomb', false, true], ['Bomb', true, true], 'NoWingsEnemy', 'AddLife'], this.width, this.height, 10);
       _ref = [players, this.midground, this.foreground];
       _results = [];
       for (i in _ref) {
@@ -1442,7 +1440,7 @@
 
   Player = (function() {
     function Player(_at_playerType, _at_color, controlScheme, _at_direction) {
-      var playerType;
+      var player, playerType;
       this.playerType = _at_playerType;
       this.color = _at_color;
       this.direction = _at_direction != null ? _at_direction : -1;
@@ -1479,20 +1477,17 @@
         return this.lives = this.maxLives - 3;
       };
       playerType = this.playerType;
+      player = this;
       this.keys = {};
       this.keys[controlScheme.up] = {
         press: function() {
-          var _ref;
           addPlayerVelocity(playerType, 'up', {
-            y: -players[playerType].yForce
+            y: -player.yForce
           });
-          if ((_ref = players[playerType].vel.mod.punch) != null ? _ref.y : void 0) {
-            players[playerType].vel.mod.punch.y -= players[playerType].yForce / 8;
-            if (players[playerType].vel.mod.punch.y < 0) {
-              players[playerType].vel.mod.punch.y = 0;
-            }
+          if (player.vel.mod.punch_down != null) {
+            player.vel.mod.punch_down.y -= player.yForce / 8;
           }
-          players[playerType].vel.mod.gravity.y = 0;
+          player.vel.mod.gravity.y = 0;
           return sound.play('flap');
         }
       };
@@ -1503,10 +1498,14 @@
       };
       this.keys[controlScheme.left] = {
         press: function() {
-          players[playerType].direction = -1;
-          return addPlayerVelocity(playerType, 'left', {
-            x: -players[playerType].xForce
+          var _ref;
+          player.direction = -1;
+          addPlayerVelocity(playerType, 'left', {
+            x: -player.xForce
           });
+          if ((_ref = player.vel.mod.punch_left) != null ? _ref.x : void 0) {
+            return player.vel.mod.punch_left.x -= player.xForce / 4;
+          }
         },
         release: function() {
           return removePlayerVelocity(playerType, 'left');
@@ -1514,10 +1513,14 @@
       };
       this.keys[controlScheme.right] = {
         press: function() {
-          players[playerType].direction = 1;
-          return addPlayerVelocity(playerType, 'right', {
-            x: players[playerType].xForce
+          var _ref;
+          player.direction = 1;
+          addPlayerVelocity(playerType, 'right', {
+            x: player.xForce
           });
+          if ((_ref = player.vel.mod.punch_right) != null ? _ref.x : void 0) {
+            return player.vel.mod.punch_right.x += player.xForce / 4;
+          }
         },
         release: function() {
           return removePlayerVelocity(playerType, 'right');
@@ -1525,7 +1528,7 @@
       };
       this.keys[controlScheme.item] = {
         press: function() {
-          return players[playerType].useItem();
+          return player.useItem();
         }
       };
     }
@@ -1581,7 +1584,7 @@
     };
 
     Player.prototype.onHit = function(c, e, solid) {
-      var _ref, _ref1, _ref2;
+      var _ref, _ref1, _ref2, _ref3, _ref4;
       if (solid) {
         if (c.top) {
           if ((_ref = this.vel.mod.up) != null) {
@@ -1590,33 +1593,72 @@
         }
         if (c.bottom) {
           this.vel.mod.gravity.y = 0;
-          if ((_ref1 = this.vel.mod.punch) != null) {
+          if ((_ref1 = this.vel.mod.punch_down) != null) {
             _ref1.y = 0;
           }
           if (!((_ref2 = this.keys.w) != null ? _ref2.pressed : void 0)) {
             removePlayerVelocity(this.playerType, 'up');
           }
-          if (e.type === 'Player') {
-            if (!e.invincible && this.vel.y > 1) {
-              sound.play('pop');
-              return addPlayerVelocity(e.playerType, 'punch', {
-                y: this.vel.y
-              });
+        }
+        if (c.bottom || c.top) {
+          if (this.vel.mod.punch_right != null) {
+            if ((_ref3 = this.vel.mod.punch_right) != null ? _ref3.x : void 0) {
+              this.vel.mod.punch_right.x += 0.05;
             }
+          }
+          if (this.vel.mod.punch_left != null) {
+            if ((_ref4 = this.vel.mod.punch_left) != null ? _ref4.x : void 0) {
+              this.vel.mod.punch_left.x -= 0.05;
+            }
+          }
+        }
+        if (c.left) {
+          removePlayerVelocity(this.playerType, 'punch_right');
+        }
+        if (c.right) {
+          removePlayerVelocity(this.playerType, 'punch_left');
+        }
+        if (e.type === 'Player' && !e.invincible) {
+          if (this.vel.y > 1 && c.bottom) {
+            sound.play('pop');
+            return addPlayerVelocity(e.playerType, 'punch_down', {
+              y: this.vel.y
+            });
+          } else if (this.vel.x > 1 && c.right) {
+            sound.play('pop');
+            addPlayerVelocity(e.playerType, 'punch_left', {
+              x: this.vel.x
+            });
+            return removePlayerVelocity(this.playerType, 'right');
+          } else if (this.vel.x < -1 && c.left) {
+            sound.play('pop');
+            addPlayerVelocity(e.playerType, 'punch_right', {
+              x: this.vel.x
+            });
+            return removePlayerVelocity(this.playerType, 'left');
           }
         }
       }
     };
 
     Player.prototype.update = function() {
-      var mod, name, subEnt, _ref, _ref1;
+      var mod, name, subEnt, _ref, _ref1, _ref2, _ref3, _ref4;
       if (!this.pause) {
         this.vel.mod.gravity.y += gravity;
         this.vel.x = 0;
         this.vel.y = 0;
-        _ref = this.vel.mod;
-        for (name in _ref) {
-          mod = _ref[name];
+        if (((_ref = this.vel.mod.punch_right) != null ? _ref.x : void 0) > 0) {
+          removePlayerVelocity(this.playerType, 'punch_right');
+        }
+        if (((_ref1 = this.vel.mod.punch_left) != null ? _ref1.x : void 0) < 0) {
+          removePlayerVelocity(this.playerType, 'punch_left');
+        }
+        if (((_ref2 = this.vel.mod.punch_down) != null ? _ref2.y : void 0) < 0) {
+          removePlayerVelocity(this.playerType, 'punch_down');
+        }
+        _ref3 = this.vel.mod;
+        for (name in _ref3) {
+          mod = _ref3[name];
           if (mod.x) {
             this.vel.x += mod.x;
           }
@@ -1624,9 +1666,9 @@
             this.vel.y += mod.y;
           }
         }
-        _ref1 = this.subEntities;
-        for (name in _ref1) {
-          subEnt = _ref1[name];
+        _ref4 = this.subEntities;
+        for (name in _ref4) {
+          subEnt = _ref4[name];
           if (typeof subEnt.update === "function") {
             subEnt.update();
           }

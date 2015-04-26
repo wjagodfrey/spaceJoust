@@ -97,7 +97,7 @@ levels.level_middle =
       ['Bomb', true, true]
       'NoWingsEnemy'
       'AddLife'
-    ], @width, @height, 4)
+    ], @width, @height, 10)
 
     for i, source of [players, @midground, @foreground]
       for ii, ent of source
