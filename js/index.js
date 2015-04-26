@@ -1457,6 +1457,7 @@
       delete this.spawner;
       clearFrameTimeouts();
       this.winner = '';
+      this.shake.shaking = false;
       return this.onBuild();
     }
   };

@@ -217,4 +217,5 @@ levels.level_middle =
     delete @spawner
     clearFrameTimeouts()
     @winner = ''
+    @shake.shaking = false
     @onBuild()
